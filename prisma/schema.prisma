@@ -15,7 +15,7 @@ enum OccupationType {
 
 model User {
   id                   String    @id @default(cuid())
-  signupEmail          String    @unique
+  email                String    @unique
   contactEmail         String?
   contactEmailVisible  Boolean   @default(false)
   passwordHash         String?
@@ -59,6 +59,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -68,6 +69,8 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -76,4 +79,5 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@index([identifier])
 }

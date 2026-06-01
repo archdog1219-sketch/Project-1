@@ -33,21 +33,45 @@ export function isOldEnough(dateOfBirth: Date): boolean {
 }
 
 /**
- * Strips sensitive fields before sending user data to the client.
+ * Returns only safe, publicly-exposable fields from a user record.
+ * Never include: passwordHash, dateOfBirth, email (signup email), or raw session data.
  * contactEmail is only returned if contactEmailVisible is true.
  */
 export function sanitizeUser(user: {
   id: string;
-  email: string;
-  passwordHash: string | null;
-  dateOfBirth: Date | null;
-  contactEmailVisible: boolean;
+  name: string | null;
+  username: string | null;
+  city: string | null;
+  bio: string | null;
+  profilePhoto: string | null;
+  occupationType: string | null;
+  companyName: string | null;
+  school: string | null;
+  graduationYear: number | null;
+  degree: string | null;
+  skills: string[];
+  interests: string[];
   contactEmail: string | null;
-  [key: string]: unknown;
+  contactEmailVisible: boolean;
+  onboardingComplete: boolean;
+  createdAt: Date;
 }) {
-  const { passwordHash, dateOfBirth, email, ...safe } = user;
   return {
-    ...safe,
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    city: user.city,
+    bio: user.bio,
+    profilePhoto: user.profilePhoto,
+    occupationType: user.occupationType,
+    companyName: user.companyName,
+    school: user.school,
+    graduationYear: user.graduationYear,
+    degree: user.degree,
+    skills: user.skills,
+    interests: user.interests,
+    onboardingComplete: user.onboardingComplete,
+    createdAt: user.createdAt,
     contactEmail: user.contactEmailVisible ? user.contactEmail : null,
   };
 }

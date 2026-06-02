@@ -4,11 +4,11 @@ import { nanoid } from "nanoid";
 import { db } from "@/lib/db";
 import { signUpSchema } from "@/lib/validations";
 import { sendVerificationEmail } from "@/lib/email";
-import { registrationRateLimit } from "@/lib/rate-limit";
+import { getRegistrationRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-  const { success } = await registrationRateLimit.limit(ip);
+  const { success } = await getRegistrationRateLimit().limit(ip);
   if (!success) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },

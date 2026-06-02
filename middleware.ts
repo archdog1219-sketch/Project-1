@@ -1,0 +1,58 @@
+import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const PUBLIC_PATHS = [
+  "/",
+  "/sign-in",
+  "/sign-up",
+  "/verify-email",
+  "/auth-error",
+  "/api/auth",
+];
+
+function isPublicPath(pathname: string): boolean {
+  return PUBLIC_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+}
+
+function addSecurityHeaders(response: NextResponse): NextResponse {
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload"
+  );
+  response.headers.set(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self'",
+      "connect-src 'self' https:",
+      "frame-ancestors 'none'",
+    ].join("; ")
+  );
+  return response;
+}
+
+export default auth(function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const session = (req as any).auth;
+
+  if (!isPublicPath(pathname) && !session) {
+    const signInUrl = new URL("/sign-in", req.url);
+    signInUrl.searchParams.set("callbackUrl", pathname);
+    return addSecurityHeaders(NextResponse.redirect(signInUrl));
+  }
+
+  return addSecurityHeaders(NextResponse.next());
+});
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)"],
+};

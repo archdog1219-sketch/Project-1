@@ -40,7 +40,7 @@ export default function StudentDetailsPage() {
         }),
       });
       if (!res.ok) return;
-      router.push("/profile/edit");
+      router.push("/onboarding/matching");
     } finally {
       setIsLoading(false);
     }

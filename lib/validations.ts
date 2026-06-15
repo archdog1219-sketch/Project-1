@@ -57,6 +57,14 @@ export const studentDetailsSchema = z.object({
   degree: z.string().max(200).optional(),
 });
 
+export const matchingProfileSchema = z.object({
+  gpaRange: z.enum(["BELOW_3_0", "R3_0_3_5", "R3_5_3_8", "R3_8_PLUS"]),
+  interests: z.array(z.string().min(1).max(50)).min(1, "Pick at least one interest").max(5, "Pick up to 5 interests"),
+  extracurriculars: z.array(z.string().min(1).max(80)).max(10).optional(),
+});
+
+export type MatchingProfileInput = z.infer<typeof matchingProfileSchema>;
+
 export const updateProfileSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   username: z

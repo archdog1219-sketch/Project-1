@@ -19,11 +19,14 @@ const LOCATION_WEIGHT = 1;
 export function scoreOpportunity(profile: MatchProfile, o: OpportunityView): ScoredOpportunity {
   let score = 0;
 
-  const overlap = o.targetInterests.filter((t) => profile.interests.includes(t));
+  const profileInterestsLower = profile.interests.map((i) => i.toLowerCase());
+  const overlap = o.targetInterests.filter((t) => profileInterestsLower.includes(t.toLowerCase()));
   score += overlap.length * INTEREST_WEIGHT;
 
   const gradeOpen = o.targetGrades.length === 0;
-  const gradeMatch = profile.gradeLabel != null && o.targetGrades.includes(profile.gradeLabel);
+  const gradeMatch =
+    profile.gradeLabel != null &&
+    o.targetGrades.some((g) => g.toLowerCase() === profile.gradeLabel!.toLowerCase());
   if (gradeOpen || gradeMatch) score += GRADE_WEIGHT;
 
   const remote = o.location.toLowerCase().includes("remote");

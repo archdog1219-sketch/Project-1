@@ -43,6 +43,15 @@ describe("scoreOpportunity", () => {
     expect(r.reason).toBe("Remote-friendly");
   });
 
+  it("matches interests case-insensitively", () => {
+    const r = scoreOpportunity(
+      { gradeLabel: "Grade 11", location: "Remote", interests: ["technology"] },
+      opp({ targetInterests: ["Technology"], targetGrades: [] })
+    );
+    expect(r.reason).toBe("Matches your interests");
+    expect(r.score).toBeGreaterThan(0);
+  });
+
   it("scores higher when more signals match", () => {
     const strong = scoreOpportunity(profile, opp({ targetInterests: ["Technology", "Science"], targetGrades: ["Grade 11"], location: "New York, NY" }));
     const weak = scoreOpportunity(profile, opp({ targetInterests: ["Law"], targetGrades: ["College"], location: "Boston, MA" }));

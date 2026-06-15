@@ -1,3 +1,4 @@
+import { OccupationType } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getAllOpportunities } from "@/lib/opportunities";
@@ -37,13 +38,17 @@ export default async function HomePage() {
 }
 
 // Maps stored education info to the grade label the scorer expects.
-function gradeLabelFor(u: { schoolLevel: string | null; graduationYear: number | null; occupationType: unknown }): string | null {
-  if (String(u.occupationType) === "STUDENT_COLLEGE" || u.schoolLevel === "College") return "College";
+function gradeLabelFor(u: {
+  schoolLevel: string | null;
+  graduationYear: number | null;
+  occupationType: OccupationType | null;
+}): string | null {
+  if (u.occupationType === "STUDENT_COLLEGE" || u.schoolLevel === "College") return "College";
   if (u.graduationYear != null) {
     const yearsLeft = u.graduationYear - new Date().getFullYear();
     const grade = 12 - yearsLeft;
     if (grade >= 9 && grade <= 12) return `Grade ${grade}`;
   }
-  if (u.schoolLevel === "High School") return "Grade 12";
+  if (u.schoolLevel === "High School" || u.occupationType === "STUDENT_HS") return "Grade 12";
   return null;
 }

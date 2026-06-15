@@ -13,33 +13,67 @@ enum OccupationType {
   OTHER
 }
 
-model User {
-  id                   String    @id @default(cuid())
-  email                String    @unique
-  contactEmail         String?
-  contactEmailVisible  Boolean   @default(false)
-  passwordHash         String?
-  emailVerified        DateTime?
-  name                 String?
-  username             String?   @unique
-  dateOfBirth          DateTime?
-  city                 String?
-  occupationType       OccupationType?
-  schoolLevel          String?
-  graduationYear       Int?
-  degree               String?
-  companyName          String?
-  school               String?
-  bio                  String?
-  skills               String[]
-  interests            String[]
-  profilePhoto         String?
-  onboardingComplete   Boolean   @default(false)
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+enum GpaRange {
+  BELOW_3_0
+  R3_0_3_5
+  R3_5_3_8
+  R3_8_PLUS
+}
 
-  accounts  Account[]
-  sessions  Session[]
+enum OpportunityType {
+  JOB
+  INTERNSHIP
+  SUMMER_PROGRAM
+  CLUB
+}
+
+enum SaveStatus {
+  SAVED
+  APPLYING
+  APPLIED
+}
+
+enum FeedEventType {
+  SAVED
+  APPLIED
+  ACCEPTED
+}
+
+model User {
+  id                  String          @id @default(cuid())
+  email               String          @unique
+  contactEmail        String?
+  contactEmailVisible Boolean         @default(false)
+  passwordHash        String?
+  emailVerified       DateTime?
+  name                String?
+  username            String?         @unique
+  dateOfBirth         DateTime?
+  city                String?
+  occupationType      OccupationType?
+  schoolLevel         String?
+  graduationYear      Int?
+  degree              String?
+  companyName         String?
+  school              String?
+  bio                 String?
+  skills              String[]
+  interests           String[]
+  gpaRange            GpaRange?
+  extracurriculars    String[]
+  careerGoals         String?
+  profilePhoto        String?
+  onboardingComplete  Boolean         @default(false)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  accounts           Account[]
+  sessions           Session[]
+  savedOpportunities SavedOpportunity[]
+  following          Follow[]           @relation("follower")
+  followers          Follow[]           @relation("following")
+  feedEvents         FeedEvent[]
+  aiDrafts           AiDraft[]
 }
 
 model Account {
@@ -80,4 +114,78 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@index([identifier])
+}
+
+model Opportunity {
+  id              String          @id @default(cuid())
+  title           String
+  org             String
+  type            OpportunityType
+  location        String
+  description     String
+  tags            String[]
+  deadline        String?
+  applyUrl        String?
+  targetGrades    String[]
+  targetInterests String[]
+  isPaid          Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+
+  savedBy    SavedOpportunity[]
+  feedEvents FeedEvent[]
+  aiDrafts   AiDraft[]
+}
+
+model SavedOpportunity {
+  id            String     @id @default(cuid())
+  userId        String
+  opportunityId String
+  status        SaveStatus @default(SAVED)
+  notes         String?
+  savedAt       DateTime   @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, opportunityId])
+  @@index([userId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+}
+
+model FeedEvent {
+  id            String        @id @default(cuid())
+  actorId       String
+  type          FeedEventType
+  opportunityId String
+  createdAt     DateTime      @default(now())
+
+  actor       User        @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+}
+
+model AiDraft {
+  id            String   @id @default(cuid())
+  userId        String
+  opportunityId String
+  content       String
+  generatedAt   DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, opportunityId])
 }

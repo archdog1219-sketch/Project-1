@@ -24,4 +24,9 @@ async function main() {
   console.log(`Seeded ${OPPORTUNITIES.length} opportunities.`);
 }
 
-main().finally(() => process.exit(0));
+main()
+  .then(() => process.exit(0))
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { ENUM_TO_LABEL, type OpportunityTypeLabel } from "@/lib/listings";
 
 export interface OpportunityView {
@@ -16,12 +17,21 @@ export interface OpportunityView {
   isPaid: boolean;
 }
 
-function toView(o: {
-  id: string; title: string; org: string; type: keyof typeof ENUM_TO_LABEL;
-  location: string; description: string; tags: string[]; deadline: string | null;
-  applyUrl: string | null; targetGrades: string[]; targetInterests: string[]; isPaid: boolean;
-}): OpportunityView {
-  return { ...o, type: ENUM_TO_LABEL[o.type] };
+function toView(o: Prisma.OpportunityGetPayload<object>): OpportunityView {
+  return {
+    id: o.id,
+    title: o.title,
+    org: o.org,
+    type: ENUM_TO_LABEL[o.type],
+    location: o.location,
+    description: o.description,
+    tags: o.tags,
+    deadline: o.deadline,
+    applyUrl: o.applyUrl,
+    targetGrades: o.targetGrades,
+    targetInterests: o.targetInterests,
+    isPaid: o.isPaid,
+  };
 }
 
 export async function getAllOpportunities(): Promise<OpportunityView[]> {

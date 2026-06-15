@@ -1,14 +1,11 @@
-import { LISTINGS, TYPE_LABELS } from "@/lib/listings";
+import { TYPE_LABELS } from "@/lib/listings";
+import { getOpportunityById } from "@/lib/opportunities";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export function generateStaticParams() {
-  return LISTINGS.map((l) => ({ id: String(l.id) }));
-}
-
 export default async function OpportunityPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const listing = LISTINGS.find((l) => l.id === Number(id));
+  const listing = await getOpportunityById(id);
   if (!listing) notFound();
 
   return (

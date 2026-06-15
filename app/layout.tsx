@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OpportuniPath — Find Student Opportunities",
+  title: "(name) — Find Student Opportunities",
   description: "Discover jobs, internships, summer programs, and clubs for high school and college students.",
 };
 

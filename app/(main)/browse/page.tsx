@@ -18,9 +18,10 @@ const s = {
   input: { width: "100%", boxSizing: "border-box" as const, border: "1px solid #bdc7d8", padding: "3px 6px", fontSize: "12px", borderRadius: "2px" },
 };
 
-export default function HomePage() {
+export default function BrowsePage() {
   const [selected, setSelected] = useState<Set<OpportunityType>>(new Set(OPPORTUNITY_TYPES));
   const [search, setSearch] = useState("");
+  const [location, setLocation] = useState("");
 
   function toggle(type: OpportunityType) {
     setSelected((prev) => {
@@ -34,14 +35,22 @@ export default function HomePage() {
     });
   }
 
-  const filtered = LISTINGS.filter(
-    (l) =>
-      selected.has(l.type) &&
-      (search === "" || l.title.toLowerCase().includes(search.toLowerCase()) || l.org.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = LISTINGS.filter((l) => {
+    if (!selected.has(l.type)) return false;
+    if (search && !l.title.toLowerCase().includes(search.toLowerCase()) && !l.org.toLowerCase().includes(search.toLowerCase())) return false;
+    if (location && !l.location.toLowerCase().includes(location.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+      {/* Page header */}
+      <div style={{ background: "#e8edf5", borderBottom: "1px solid #c8d0e0", padding: "8px 16px" }}>
+        <div style={{ maxWidth: "960px", margin: "0 auto", fontSize: "13px", color: "#3b5998", fontWeight: "bold" }}>
+          Browse Opportunities
+        </div>
+      </div>
+
       <div style={s.page}>
         {/* Sidebar */}
         <aside style={{ width: "150px", flexShrink: 0 }}>
@@ -55,15 +64,19 @@ export default function HomePage() {
             ))}
           </div>
           <div style={s.panel}>
-            <div style={s.panelTitle}>Search</div>
+            <div style={s.panelTitle}>Keyword</div>
             <input style={s.input} type="text" placeholder="Role or org..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
+          <div style={s.panel}>
+            <div style={s.panelTitle}>Location</div>
+            <input style={s.input} type="text" placeholder="City or Remote..." value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
         </aside>
 
         {/* Listings */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: "11px", color: "#666", marginBottom: "8px" }}>
-            Showing {filtered.length} opportunit{filtered.length === 1 ? "y" : "ies"}
+            {filtered.length} opportunit{filtered.length === 1 ? "y" : "ies"} found
           </div>
 
           {filtered.length === 0 ? (

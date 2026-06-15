@@ -1,11 +1,39 @@
 "use client";
+
 import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { signInSchema } from "@/lib/validations";
+
+const s = {
+  title: { fontSize: "18px", fontWeight: "bold" as const, color: "#3b5998", marginBottom: "16px" },
+  label: { display: "block" as const, fontSize: "12px", fontWeight: "bold" as const, color: "#333", marginBottom: "3px" },
+  input: { width: "100%", boxSizing: "border-box" as const, border: "1px solid #bdc7d8", padding: "5px 7px", fontSize: "13px", borderRadius: "2px", outline: "none" },
+  inputError: { width: "100%", boxSizing: "border-box" as const, border: "1px solid #c00", padding: "5px 7px", fontSize: "13px", borderRadius: "2px", outline: "none" },
+  fieldError: { color: "#c00", fontSize: "11px", marginTop: "2px" },
+  field: { marginBottom: "10px" },
+  submitBtn: { width: "100%", background: "#3b5998", color: "#fff", border: "1px solid #29487d", padding: "6px", fontSize: "13px", fontWeight: "bold" as const, borderRadius: "2px", cursor: "pointer" as const, marginTop: "4px" },
+  divider: { display: "flex" as const, alignItems: "center" as const, gap: "8px", margin: "14px 0", color: "#999", fontSize: "11px" },
+  line: { flex: 1, height: "1px", background: "#c8d0e0" },
+  oauthBtn: { width: "100%", background: "#fff", color: "#333", border: "1px solid #c8d0e0", padding: "6px", fontSize: "12px", borderRadius: "2px", cursor: "pointer" as const, display: "flex" as const, alignItems: "center" as const, justifyContent: "center" as const, gap: "8px", marginBottom: "6px" },
+  serverError: { background: "#fff3f3", border: "1px solid #f5c6cb", color: "#c00", fontSize: "11px", padding: "6px 8px", borderRadius: "2px", marginBottom: "8px" },
+  footer: { marginTop: "14px", fontSize: "11px", color: "#666", textAlign: "center" as const, borderTop: "1px solid #e2e8f0", paddingTop: "12px" },
+};
+
+const GoogleIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+  </svg>
+);
+
+const AppleIcon = () => (
+  <svg width="15" height="18" viewBox="0 0 814 1000" xmlns="http://www.w3.org/2000/svg" fill="#000">
+    <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-155.5-127.4C46.3 790.7 0 663 0 541.8c0-207.5 135.4-317.3 269-317.3 70.1 0 128.4 46.4 172.5 46.4 42.8 0 109.6-49 192.5-49 30.8 0 108.2 2.6 168.6 71.9zm-174.4-147.4c7.7-39.5 27.1-85.5 59.8-120.5 35.1-38.2 87.5-65.4 140.3-65.4 3.2 35.1-9.7 70.1-40.2 106.1-28.9 33.8-80.2 61.6-140.3 61.6-4.5 0-9-.6-19.6-1.8z"/>
+  </svg>
+);
 
 function SignInForm() {
   const router = useRouter();
@@ -27,11 +55,7 @@ function SignInForm() {
     setErrors({});
     setIsLoading(true);
     try {
-      const result = await signIn("credentials", {
-        email: form.email,
-        password: form.password,
-        redirect: false,
-      });
+      const result = await signIn("credentials", { email: form.email, password: form.password, redirect: false });
       if (result?.error) {
         setServerError("Invalid email or password.");
         return;
@@ -43,62 +67,43 @@ function SignInForm() {
   }
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Sign in</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input
-          label="Email address"
-          type="email"
-          autoComplete="email"
-          value={form.email}
-          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-          error={errors.email?.[0]}
-        />
-        <Input
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          value={form.password}
-          onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-          error={errors.password?.[0]}
-        />
-        {serverError && <p className="text-sm text-red-500">{serverError}</p>}
-        <Button type="submit" isLoading={isLoading} className="w-full mt-2">
-          Sign in
-        </Button>
+    <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+      <div style={s.title}>Sign in</div>
+
+      {serverError && <div style={s.serverError}>{serverError}</div>}
+
+      <form onSubmit={handleSubmit}>
+        <div style={s.field}>
+          <label style={s.label}>Email address</label>
+          <input style={errors.email ? s.inputError : s.input} type="email" autoComplete="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+          {errors.email?.[0] && <div style={s.fieldError}>{errors.email[0]}</div>}
+        </div>
+        <div style={s.field}>
+          <label style={s.label}>Password</label>
+          <input style={errors.password ? s.inputError : s.input} type="password" autoComplete="current-password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+          {errors.password?.[0] && <div style={s.fieldError}>{errors.password[0]}</div>}
+        </div>
+        <button type="submit" style={s.submitBtn} disabled={isLoading}>
+          {isLoading ? "Signing in..." : "Sign in"}
+        </button>
       </form>
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-white px-3 text-sm text-gray-400">or</span>
-        </div>
+
+      <div style={s.divider}>
+        <div style={s.line} />
+        <span>or</span>
+        <div style={s.line} />
       </div>
-      <div className="flex flex-col gap-3">
-        <Button
-          type="button"
-          variant="secondary"
-          className="w-full"
-          onClick={() => signIn("google", { callbackUrl })}
-        >
-          Continue with Google
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          className="w-full"
-          onClick={() => signIn("apple", { callbackUrl })}
-        >
-          Continue with Apple
-        </Button>
+
+      <button style={s.oauthBtn} onClick={() => signIn("google", { callbackUrl })}>
+        <GoogleIcon /> Continue with Google
+      </button>
+      <button style={s.oauthBtn} onClick={() => signIn("apple", { callbackUrl })}>
+        <AppleIcon /> Continue with Apple
+      </button>
+
+      <div style={s.footer}>
+        Don&apos;t have an account? <a href="/sign-up" style={{ color: "#3b5998" }}>Sign up</a>
       </div>
-      <p className="text-center text-sm text-gray-500 mt-6">
-        Don&apos;t have an account?{" "}
-        <Link href="/sign-up" className="font-medium text-indigo-600 hover:underline">
-          Sign up
-        </Link>
-      </p>
     </div>
   );
 }

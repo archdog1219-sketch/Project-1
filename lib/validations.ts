@@ -88,3 +88,14 @@ export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
 export type BasicInfoInput = z.infer<typeof basicInfoSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const saveStatusSchema = z.object({
+  status: z.enum(["SAVED", "APPLYING", "APPLIED", "ACCEPTED"]),
+});
+
+export const followSchema = z.object({
+  targetId: z.string().min(1, "targetId is required"),
+});
+
+export type SaveStatusInput = z.infer<typeof saveStatusSchema>;
+export type FollowInput = z.infer<typeof followSchema>;

@@ -30,8 +30,9 @@ export async function setSaveStatus(
   if (shouldEmitFeedEvent(prev, status)) {
     const type = feedEventTypeForStatus(status);
     if (type) {
-      await db.feedEvent.create({
-        data: { actorId: userId, opportunityId, type: type as FeedEventType },
+      await db.feedEvent.createMany({
+        data: [{ actorId: userId, opportunityId, type: type as FeedEventType }],
+        skipDuplicates: true,
       });
     }
   }

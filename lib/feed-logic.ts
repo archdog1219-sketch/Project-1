@@ -1,3 +1,7 @@
+// Conceptual full set of save statuses. The persisted Prisma SaveStatus enum is
+// currently the subset SAVED|APPLYING|APPLIED; ACCEPTED is included here ahead of
+// the Phase 3 tracker (which will add it to the DB enum). feedEventTypeForStatus
+// already handles ACCEPTED so no logic change is needed when that lands.
 export type SaveStatus = "SAVED" | "APPLYING" | "APPLIED" | "ACCEPTED";
 // Mirrors the Prisma FeedEventType enum (SAVED|APPLIED|ACCEPTED) so DB-layer code
 // can use this union directly. Note: feedEventTypeForStatus never returns "SAVED"

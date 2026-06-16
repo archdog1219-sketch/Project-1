@@ -174,7 +174,8 @@ model FeedEvent {
   actor       User        @relation(fields: [actorId], references: [id], onDelete: Cascade)
   opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
 
-  @@index([actorId])
+  @@unique([actorId, opportunityId, type])
+  @@index([actorId, createdAt])
 }
 
 model AiDraft {

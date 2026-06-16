@@ -1,5 +1,8 @@
 import { TYPE_LABELS } from "@/lib/listings";
 import { getOpportunityById } from "@/lib/opportunities";
+import { auth } from "@/lib/auth";
+import { getSaveStatus } from "@/lib/social";
+import OpportunityActions from "./opportunity-actions";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -7,6 +10,9 @@ export default async function OpportunityPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const listing = await getOpportunityById(id);
   if (!listing) notFound();
+
+  const session = await auth();
+  const saveStatus = session?.user?.id ? await getSaveStatus(session.user.id, listing.id) : null;
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "16px", fontFamily: "Arial, Helvetica, sans-serif" }}>
@@ -76,6 +82,8 @@ export default async function OpportunityPage({ params }: { params: Promise<{ id
               </table>
             </div>
           </div>
+
+          {session?.user?.id && <OpportunityActions opportunityId={listing.id} initialStatus={saveStatus} />}
 
           <a
             href={listing.applyUrl ?? "#"}

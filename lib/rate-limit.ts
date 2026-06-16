@@ -23,3 +23,11 @@ export function getLoginRateLimit() {
     prefix: "ratelimit:login",
   });
 }
+
+export function getAiDraftRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(10, "1 h"),
+    prefix: "ratelimit:aidraft",
+  });
+}

@@ -1,0 +1,39 @@
+export type SaveStatus = "SAVED" | "APPLYING" | "APPLIED" | "ACCEPTED";
+export type FeedEventType = "SAVED" | "APPLIED" | "ACCEPTED";
+
+// Which save statuses are publicly shareable as feed events. SAVED/APPLYING are private.
+export function feedEventTypeForStatus(status: SaveStatus): FeedEventType | null {
+  if (status === "APPLIED") return "APPLIED";
+  if (status === "ACCEPTED") return "ACCEPTED";
+  return null;
+}
+
+// Emit a feed event only when moving INTO a shareable status from a different status.
+export function shouldEmitFeedEvent(prev: SaveStatus | null, next: SaveStatus): boolean {
+  if (prev === next) return false;
+  return feedEventTypeForStatus(next) !== null;
+}
+
+export interface SuggestionCandidate {
+  id: string;
+  name: string | null;
+  interests: string[];
+}
+
+// Rank candidate users by number of shared interests with `me`, descending.
+// Excludes self, already-followed users, and anyone with zero overlap.
+export function rankSuggestions(
+  me: { id: string; interests: string[] },
+  candidates: SuggestionCandidate[],
+  alreadyFollowing: Set<string>
+): (SuggestionCandidate & { shared: number })[] {
+  const mine = new Set(me.interests.map((i) => i.toLowerCase()));
+  return candidates
+    .filter((c) => c.id !== me.id && !alreadyFollowing.has(c.id))
+    .map((c) => ({
+      ...c,
+      shared: c.interests.filter((i) => mine.has(i.toLowerCase())).length,
+    }))
+    .filter((c) => c.shared > 0)
+    .sort((a, b) => b.shared - a.shared);
+}

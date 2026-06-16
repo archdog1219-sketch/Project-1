@@ -32,6 +32,16 @@ describe("deadlineInfo", () => {
   it("shows the raw deadline for far-off dates", () => {
     expect(deadlineInfo("March 1, 2026", NOW)).toEqual({ text: "March 1, 2026", urgent: false });
   });
+  it("is urgent at exactly 7 days but not at 8", () => {
+    expect(deadlineInfo("January 17, 2026", NOW).urgent).toBe(true);
+    expect(deadlineInfo("January 18, 2026", NOW).urgent).toBe(false);
+  });
+  it("uses singular 'day' at exactly 1 day", () => {
+    expect(deadlineInfo("January 11, 2026", NOW)).toEqual({ text: "Due in 1 day", urgent: true });
+  });
+  it("shows the raw deadline string (not 'Due in') at 8 days", () => {
+    expect(deadlineInfo("January 18, 2026", NOW).text).toBe("January 18, 2026");
+  });
 });
 
 describe("groupByStatus", () => {

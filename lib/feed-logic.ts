@@ -1,4 +1,7 @@
 export type SaveStatus = "SAVED" | "APPLYING" | "APPLIED" | "ACCEPTED";
+// Mirrors the Prisma FeedEventType enum (SAVED|APPLIED|ACCEPTED) so DB-layer code
+// can use this union directly. Note: feedEventTypeForStatus never returns "SAVED"
+// (saving is private) — it's here only to match the persisted enum.
 export type FeedEventType = "SAVED" | "APPLIED" | "ACCEPTED";
 
 // Which save statuses are publicly shareable as feed events. SAVED/APPLYING are private.

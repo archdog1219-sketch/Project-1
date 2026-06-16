@@ -38,4 +38,17 @@ describe("rankSuggestions", () => {
     const ranked = rankSuggestions(me, [{ id: "x", name: "X", interests: ["Art"] }], new Set());
     expect(ranked).toEqual([]);
   });
+  it("matches interests case-insensitively", () => {
+    const ranked = rankSuggestions(me, [{ id: "a", name: "A", interests: ["technology"] }], new Set());
+    expect(ranked.map((u) => u.id)).toEqual(["a"]);
+    expect(ranked[0].shared).toBe(1);
+  });
+
+  it("preserves input order for candidates with equal shared counts", () => {
+    const ranked = rankSuggestions(me, [
+      { id: "first", name: "First", interests: ["Technology"] },
+      { id: "second", name: "Second", interests: ["Science"] },
+    ], new Set());
+    expect(ranked.map((u) => u.id)).toEqual(["first", "second"]);
+  });
 });

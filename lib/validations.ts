@@ -89,8 +89,10 @@ export type SignInInput = z.infer<typeof signInSchema>;
 export type BasicInfoInput = z.infer<typeof basicInfoSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
+// Matches the Prisma SaveStatus enum (no ACCEPTED — acceptance tracking arrives
+// with the Phase 3 tracker, which will add the enum value + migration).
 export const saveStatusSchema = z.object({
-  status: z.enum(["SAVED", "APPLYING", "APPLIED", "ACCEPTED"]),
+  status: z.enum(["SAVED", "APPLYING", "APPLIED"]),
 });
 
 export const followSchema = z.object({

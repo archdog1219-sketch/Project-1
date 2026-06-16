@@ -2,7 +2,9 @@ import { TYPE_LABELS } from "@/lib/listings";
 import { getOpportunityById } from "@/lib/opportunities";
 import { auth } from "@/lib/auth";
 import { getSaveStatus } from "@/lib/social";
+import { db } from "@/lib/db";
 import OpportunityActions from "./opportunity-actions";
+import AiAssist from "./ai-assist";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -13,6 +15,13 @@ export default async function OpportunityPage({ params }: { params: Promise<{ id
 
   const session = await auth();
   const saveStatus = session?.user?.id ? await getSaveStatus(session.user.id, listing.id) : null;
+
+  const aiDraft = session?.user?.id
+    ? await db.aiDraft.findUnique({
+        where: { userId_opportunityId: { userId: session.user.id, opportunityId: listing.id } },
+        select: { content: true },
+      })
+    : null;
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "16px", fontFamily: "Arial, Helvetica, sans-serif" }}>
@@ -95,6 +104,8 @@ export default async function OpportunityPage({ params }: { params: Promise<{ id
           <div style={{ marginTop: "8px", fontSize: "11px", color: "#999", textAlign: "center" }}>
             <a href="/sign-up" style={{ color: "#3b5998" }}>Sign up</a> to save this opportunity
           </div>
+
+          {session?.user?.id && <AiAssist opportunityId={listing.id} initialDraft={aiDraft?.content ?? null} />}
         </div>
       </div>
 

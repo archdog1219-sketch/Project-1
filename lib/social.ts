@@ -149,3 +149,32 @@ export async function getFollowSuggestions(userId: string, limit = 5): Promise<S
     .slice(0, limit)
     .map((c) => ({ id: c.id, name: c.name, shared: c.shared }));
 }
+
+// --- Tracker ---
+
+export interface TrackedItem {
+  savedId: string;
+  status: SaveStatus;
+  opportunityId: string;
+  title: string;
+  org: string;
+  deadline: string | null;
+}
+
+export async function getTrackedOpportunities(userId: string): Promise<TrackedItem[]> {
+  const rows = await db.savedOpportunity.findMany({
+    where: { userId },
+    orderBy: { savedAt: "desc" },
+    include: {
+      opportunity: { select: { id: true, title: true, org: true, deadline: true } },
+    },
+  });
+  return rows.map((r) => ({
+    savedId: r.id,
+    status: r.status,
+    opportunityId: r.opportunity.id,
+    title: r.opportunity.title,
+    org: r.opportunity.org,
+    deadline: r.opportunity.deadline,
+  }));
+}

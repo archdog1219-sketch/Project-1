@@ -28,7 +28,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {/* Nav links */}
         <nav style={{ display: "flex", alignItems: "center", padding: "0 12px" }}>
           <Link href="/" className="nav-link">Home</Link>
-          <Link href="/sign-up" className="nav-link">Sign Up</Link>
+          <Link href="/feed" className="nav-link">Feed</Link>
           <Link href="/browse" className="nav-link">Browse</Link>
           <Link href="/about" className="nav-link">About</Link>
         </nav>

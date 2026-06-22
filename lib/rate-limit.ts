@@ -50,3 +50,12 @@ export function getUploadRateLimit() {
     prefix: "ratelimit:upload",
   });
 }
+
+// Caps how many opportunities a single employer can post per day.
+export function getPostRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(10, "1 d"),
+    prefix: "ratelimit:post",
+  });
+}

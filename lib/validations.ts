@@ -101,3 +101,18 @@ export const followSchema = z.object({
 
 export type SaveStatusInput = z.infer<typeof saveStatusSchema>;
 export type FollowInput = z.infer<typeof followSchema>;
+
+export const opportunitySubmissionSchema = z.object({
+  title: z.string().trim().min(3, "Title is too short").max(120),
+  org: z.string().trim().min(2, "Organization is too short").max(120),
+  type: z.enum(["Jobs", "Internships", "Summer Programs", "Clubs"]),
+  location: z.string().trim().min(2, "Location is too short").max(120),
+  description: z.string().trim().min(30, "Description should be at least 30 characters").max(4000),
+  applyUrl: z.string().trim().url("Apply URL must be a valid link").max(500).optional().or(z.literal("")),
+  deadline: z.string().trim().max(60).optional().or(z.literal("")),
+  isPaid: z.boolean(),
+  targetGrades: z.array(z.string().min(1).max(40)).max(8),
+  targetInterests: z.array(z.string().min(1).max(50)).max(5),
+});
+
+export type OpportunitySubmissionInput = z.infer<typeof opportunitySubmissionSchema>;

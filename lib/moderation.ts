@@ -8,7 +8,11 @@ export type ModerationResult = { ok: true } | { ok: false; reason: string };
 const URL_RE = /(https?:\/\/|www\.)\S+/i;
 const DOMAIN_RE = /\b[a-z0-9][a-z0-9-]*\.(com|net|org|io|co|edu|gov|info|biz|app|dev)\b/i;
 const EMAIL_RE = /\b[\w.+-]+@[\w-]+\.[\w.-]+\b/;
-const PHONE_RE = /(?:\+?\d[\d\s().-]{7,}\d)/;
+// A digit followed by 9+ more digits (each optionally preceded by spaces, parens,
+// dots, or hyphens) — i.e. ~10+ digits total, the length of a real phone number.
+// This avoids flagging 8-digit year ranges like "2024-2026" or ZIP+4 "90210-1234",
+// while still tolerating the multi-char separators in "(555) 123-4567".
+const PHONE_RE = /\d(?:[\s().-]*\d){9,}/;
 const REPEAT_PUNCT_RE = /([!?])\1{2,}/;
 const REPEAT_CHAR_RE = /(.)\1{5,}/;
 

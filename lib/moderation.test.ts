@@ -49,4 +49,19 @@ describe("validateSubmission", () => {
     const r = validateSubmission({ ...clean, title: "Best internship ever!!!!" });
     expect(r.ok).toBe(false);
   });
+
+  it("does NOT reject a year range like 2024-2026 in the description", () => {
+    const r = validateSubmission({ ...clean, description: "This is a 2024-2026 academic-year internship in our Boston office." });
+    expect(r).toEqual({ ok: true });
+  });
+
+  it("does NOT reject a ZIP+4 like 90210-1234", () => {
+    const r = validateSubmission({ ...clean, description: clean.description + " Located near ZIP 90210-1234." });
+    expect(r).toEqual({ ok: true });
+  });
+
+  it("still rejects a real 10-digit phone number with parentheses", () => {
+    const r = validateSubmission({ ...clean, description: clean.description + " Call (555) 123-4567 to apply." });
+    expect(r.ok).toBe(false);
+  });
 });

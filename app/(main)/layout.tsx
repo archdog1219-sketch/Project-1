@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { getEmployerUserId } from "@/lib/employer";
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  const isEmployer = (await getEmployerUserId()) !== null;
   return (
     <div className="min-h-screen flex flex-col bg-white" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
       <style>{`
@@ -32,6 +34,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Link href="/tracker" className="nav-link">Tracker</Link>
           <Link href="/browse" className="nav-link">Browse</Link>
           <Link href="/about" className="nav-link">About</Link>
+          {isEmployer && <Link href="/post" className="nav-link">Post</Link>}
+          {isEmployer && <Link href="/my-postings" className="nav-link">My Postings</Link>}
         </nav>
       </header>
       <main style={{ flex: 1 }}>{children}</main>

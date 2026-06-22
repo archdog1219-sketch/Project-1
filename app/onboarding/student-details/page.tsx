@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StudentLevelSelector } from "@/components/onboarding/student-level-selector";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/onboarding/progress-bar";
 
 const YEARS = ["Freshman", "Sophomore", "Junior", "Senior"];
@@ -47,49 +45,56 @@ export default function StudentDetailsPage() {
   }
 
   return (
-    <div>
+    <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
       <ProgressBar currentStep={4} totalSteps={4} />
-      <h2 className="text-xl font-semibold text-gray-900 mt-6 mb-1">Tell us about your education</h2>
-      <p className="text-sm text-gray-500 mb-6">Step 4 of 4 — Student details</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <h2 style={{ fontSize: "18px", fontWeight: "bold", color: "#3b5998", margin: "16px 0 2px" }}>Tell us about your education</h2>
+      <p style={{ fontSize: "11px", color: "#666", margin: "0 0 16px" }}>Step 4 of 4 — Student details</p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">High school or college?</p>
+          <p style={{ fontSize: "12px", fontWeight: "bold", color: "#333", margin: "0 0 8px" }}>High school or college?</p>
           <StudentLevelSelector selected={level} onSelect={setLevel} />
-          {errors.level && <p className="text-xs text-red-500 mt-1">{errors.level}</p>}
+          {errors.level && <p style={{ fontSize: "11px", color: "#c00", margin: "4px 0 0" }}>{errors.level}</p>}
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">What year are you in?</p>
-          <div className="flex gap-2 flex-wrap">
+          <p style={{ fontSize: "12px", fontWeight: "bold", color: "#333", margin: "0 0 8px" }}>What year are you in?</p>
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
             {YEARS.map((y) => (
               <button
                 key={y}
                 type="button"
                 onClick={() => setYear(y)}
-                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                  year === y
-                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                    : "border-gray-200 text-gray-600 hover:border-gray-300"
-                }`}
+                style={{
+                  padding: "4px 12px",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                  borderRadius: "2px",
+                  border: year === y ? "1px solid #29487d" : "1px solid #c8d0e0",
+                  background: year === y ? "#3b5998" : "#e8edf5",
+                  color: year === y ? "#fff" : "#3b5998",
+                }}
               >
                 {y}
               </button>
             ))}
           </div>
-          {errors.year && <p className="text-xs text-red-500 mt-1">{errors.year}</p>}
+          {errors.year && <p style={{ fontSize: "11px", color: "#c00", margin: "4px 0 0" }}>{errors.year}</p>}
         </div>
         {level === "College" && (
-          <Input
-            label="What degree are you pursuing?"
-            type="text"
-            placeholder="e.g. Computer Science, Business Administration"
-            value={degree}
-            onChange={(e) => setDegree(e.target.value)}
-            error={errors.degree}
-          />
+          <div>
+            <label style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>What degree are you pursuing?</label>
+            <input
+              type="text"
+              placeholder="e.g. Computer Science, Business Administration"
+              value={degree}
+              onChange={(e) => setDegree(e.target.value)}
+              style={{ width: "100%", boxSizing: "border-box", border: "1px solid #bdc7d8", padding: "5px 7px", fontSize: "13px", borderRadius: "2px" }}
+            />
+            {errors.degree && <p style={{ fontSize: "11px", color: "#c00", margin: "4px 0 0" }}>{errors.degree}</p>}
+          </div>
         )}
-        <Button type="submit" isLoading={isLoading} className="w-full mt-2">
-          Finish setup →
-        </Button>
+        <button type="submit" disabled={isLoading} style={{ width: "100%", marginTop: "4px", background: "#3b5998", color: "#fff", border: "1px solid #29487d", padding: "6px", fontSize: "13px", fontWeight: "bold", borderRadius: "2px", cursor: "pointer" }}>
+          {isLoading ? "Saving..." : "Finish setup →"}
+        </button>
       </form>
     </div>
   );

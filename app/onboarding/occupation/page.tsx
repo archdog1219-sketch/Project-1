@@ -1,9 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OccupationCard } from "@/components/ui/occupation-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/onboarding/progress-bar";
 
 const OCCUPATIONS = [
@@ -62,37 +59,56 @@ export default function OccupationPage() {
   }
 
   return (
-    <div>
+    <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
       <ProgressBar currentStep={2} totalSteps={4} />
-      <h2 className="text-xl font-semibold text-gray-900 mt-6 mb-1">What best describes you?</h2>
-      <p className="text-sm text-gray-500 mb-6">Step 2 of 4 — Occupation</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <h2 style={{ fontSize: "18px", fontWeight: "bold", color: "#3b5998", margin: "16px 0 2px" }}>What best describes you?</h2>
+      <p style={{ fontSize: "11px", color: "#666", margin: "0 0 16px" }}>Step 2 of 4 — Occupation</p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {OCCUPATIONS.map((occ) => (
-          <OccupationCard
+          <button
             key={occ.value}
-            {...occ}
-            selected={selected === occ.value}
-            onSelect={setSelected}
-          />
+            type="button"
+            onClick={() => setSelected(occ.value)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "12px",
+              textAlign: "left",
+              width: "100%",
+              cursor: "pointer",
+              borderRadius: "2px",
+              border: selected === occ.value ? "1px solid #29487d" : "1px solid #c8d0e0",
+              background: selected === occ.value ? "#e8edf5" : "#fff",
+            }}
+          >
+            <span style={{ fontSize: "28px" }}>{occ.icon}</span>
+            <div>
+              <p style={{ fontSize: "13px", fontWeight: "bold", color: "#3b5998", margin: 0 }}>{occ.title}</p>
+              <p style={{ fontSize: "11px", color: "#666", margin: "2px 0 0" }}>{occ.description}</p>
+            </div>
+          </button>
         ))}
         {selected === "EMPLOYER" && (
-          <Input
-            label="Company name"
-            type="text"
-            placeholder="e.g. Acme Corp"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-            error={companyError}
-          />
+          <div>
+            <label style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>Company name</label>
+            <input
+              type="text"
+              placeholder="e.g. Acme Corp"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              style={{ width: "100%", boxSizing: "border-box", border: "1px solid #bdc7d8", padding: "5px 7px", fontSize: "13px", borderRadius: "2px" }}
+            />
+            {companyError && <p style={{ fontSize: "11px", color: "#c00", margin: "4px 0 0" }}>{companyError}</p>}
+          </div>
         )}
-        <Button
+        <button
           type="submit"
-          isLoading={isLoading}
-          disabled={!selected}
-          className="w-full mt-2"
+          disabled={isLoading || !selected}
+          style={{ width: "100%", marginTop: "4px", background: "#3b5998", color: "#fff", border: "1px solid #29487d", padding: "6px", fontSize: "13px", fontWeight: "bold", borderRadius: "2px", cursor: "pointer", opacity: !selected ? 0.6 : 1 }}
         >
-          Continue →
-        </Button>
+          {isLoading ? "Saving..." : "Continue →"}
+        </button>
       </form>
     </div>
   );

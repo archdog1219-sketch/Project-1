@@ -5,13 +5,16 @@ interface ProgressBarProps {
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
   return (
-    <div className="flex gap-2" role="progressbar" aria-valuenow={currentStep} aria-valuemax={totalSteps}>
+    <div style={{ display: "flex", gap: "4px" }} role="progressbar" aria-valuenow={currentStep} aria-valuemax={totalSteps}>
       {Array.from({ length: totalSteps }).map((_, i) => (
         <div
           key={i}
-          className={`h-1.5 flex-1 rounded-full transition-colors ${
-            i < currentStep ? "bg-indigo-600" : "bg-gray-200"
-          }`}
+          style={{
+            height: "6px",
+            flex: 1,
+            borderRadius: "2px",
+            background: i < currentStep ? "#3b5998" : "#c8d0e0",
+          }}
         />
       ))}
     </div>

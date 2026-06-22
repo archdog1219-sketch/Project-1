@@ -15,20 +15,27 @@ export function StudentLevelSelector({
   ];
 
   return (
-    <div className="flex gap-3">
+    <div style={{ display: "flex", gap: "8px", fontFamily: "Arial, Helvetica, sans-serif" }}>
       {options.map((opt) => (
         <button
           key={opt.value}
           type="button"
           onClick={() => onSelect(opt.value)}
-          className={`flex-1 flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-            selected === opt.value
-              ? "border-indigo-500 bg-indigo-50"
-              : "border-gray-200 bg-white hover:border-gray-300"
-          }`}
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "6px",
+            padding: "16px",
+            cursor: "pointer",
+            borderRadius: "2px",
+            border: selected === opt.value ? "1px solid #29487d" : "1px solid #c8d0e0",
+            background: selected === opt.value ? "#e8edf5" : "#fff",
+          }}
         >
-          <span className="text-3xl">{opt.icon}</span>
-          <span className="font-semibold text-gray-900">{opt.label}</span>
+          <span style={{ fontSize: "28px" }}>{opt.icon}</span>
+          <span style={{ fontSize: "13px", fontWeight: "bold", color: "#3b5998" }}>{opt.label}</span>
         </button>
       ))}
     </div>

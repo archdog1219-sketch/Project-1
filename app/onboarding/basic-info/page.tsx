@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/onboarding/progress-bar";
 import { basicInfoSchema } from "@/lib/validations";
+
+const labelStyle = { display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" } as const;
+const inputStyle = { width: "100%", boxSizing: "border-box", border: "1px solid #bdc7d8", padding: "5px 7px", fontSize: "13px", borderRadius: "2px" } as const;
+const errorStyle = { fontSize: "11px", color: "#c00", margin: "4px 0 0" } as const;
 
 export default function BasicInfoPage() {
   const router = useRouter();
@@ -41,38 +43,47 @@ export default function BasicInfoPage() {
   }
 
   return (
-    <div>
+    <div style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
       <ProgressBar currentStep={1} totalSteps={4} />
-      <h2 className="text-xl font-semibold text-gray-900 mt-6 mb-1">Tell us about yourself</h2>
-      <p className="text-sm text-gray-500 mb-6">Step 1 of 4 — Basic info</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input
-          label="Full name"
-          type="text"
-          autoComplete="name"
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-          error={errors.name?.[0]}
-        />
-        <Input
-          label="Date of birth"
-          type="date"
-          value={form.dateOfBirth}
-          onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
-          error={errors.dateOfBirth?.[0]}
-        />
-        <Input
-          label="City"
-          type="text"
-          placeholder="e.g. Chicago"
-          value={form.city}
-          onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-          error={errors.city?.[0]}
-        />
-        {serverError && <p className="text-sm text-red-500">{serverError}</p>}
-        <Button type="submit" isLoading={isLoading} className="w-full mt-2">
-          Continue →
-        </Button>
+      <h2 style={{ fontSize: "18px", fontWeight: "bold", color: "#3b5998", margin: "16px 0 2px" }}>Tell us about yourself</h2>
+      <p style={{ fontSize: "11px", color: "#666", margin: "0 0 16px" }}>Step 1 of 4 — Basic info</p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div>
+          <label style={labelStyle}>Full name</label>
+          <input
+            type="text"
+            autoComplete="name"
+            value={form.name}
+            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            style={inputStyle}
+          />
+          {errors.name?.[0] && <p style={errorStyle}>{errors.name[0]}</p>}
+        </div>
+        <div>
+          <label style={labelStyle}>Date of birth</label>
+          <input
+            type="date"
+            value={form.dateOfBirth}
+            onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
+            style={inputStyle}
+          />
+          {errors.dateOfBirth?.[0] && <p style={errorStyle}>{errors.dateOfBirth[0]}</p>}
+        </div>
+        <div>
+          <label style={labelStyle}>City</label>
+          <input
+            type="text"
+            placeholder="e.g. Chicago"
+            value={form.city}
+            onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+            style={inputStyle}
+          />
+          {errors.city?.[0] && <p style={errorStyle}>{errors.city[0]}</p>}
+        </div>
+        {serverError && <p style={errorStyle}>{serverError}</p>}
+        <button type="submit" disabled={isLoading} style={{ width: "100%", marginTop: "4px", background: "#3b5998", color: "#fff", border: "1px solid #29487d", padding: "6px", fontSize: "13px", fontWeight: "bold", borderRadius: "2px", cursor: "pointer" }}>
+          {isLoading ? "Saving..." : "Continue →"}
+        </button>
       </form>
     </div>
   );

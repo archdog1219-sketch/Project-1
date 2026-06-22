@@ -43,3 +43,11 @@ export async function getOpportunityById(id: string): Promise<OpportunityView | 
   const row = await db.opportunity.findUnique({ where: { id } });
   return row ? toView(row) : null;
 }
+
+export async function getOwnedOpportunities(userId: string): Promise<OpportunityView[]> {
+  const rows = await db.opportunity.findMany({
+    where: { ownerId: userId },
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map(toView);
+}

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { OccupationType } from "@prisma/client";
+import { getWriteRateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
   schoolLevel: z.enum(["High School", "College"]),
@@ -14,6 +15,11 @@ export async function PATCH(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { success } = await getWriteRateLimit().limit(session.user.id);
+  if (!success) {
+    return NextResponse.json({ error: "Too many requests. Please slow down." }, { status: 429 });
   }
 
   const body = await request.json();

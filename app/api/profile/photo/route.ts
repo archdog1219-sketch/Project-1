@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { put, del } from "@vercel/blob";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getUploadRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { success } = await getUploadRateLimit().limit(session.user.id);
+  if (!success) {
+    return NextResponse.json({ error: "Too many uploads. Please try again later." }, { status: 429 });
   }
 
   const formData = await request.formData();

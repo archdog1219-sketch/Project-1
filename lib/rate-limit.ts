@@ -31,3 +31,22 @@ export function getAiDraftRateLimit() {
     prefix: "ratelimit:aidraft",
   });
 }
+
+// General per-user limiter for authenticated write endpoints (follow, save,
+// profile edits, onboarding). Generous enough never to affect normal use.
+export function getWriteRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(40, "1 m"),
+    prefix: "ratelimit:write",
+  });
+}
+
+// Stricter per-user limiter for photo uploads (each write costs blob storage).
+export function getUploadRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(10, "1 h"),
+    prefix: "ratelimit:upload",
+  });
+}

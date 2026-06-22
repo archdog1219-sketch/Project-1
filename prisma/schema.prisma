@@ -74,6 +74,7 @@ model User {
   followers          Follow[]           @relation("following")
   feedEvents         FeedEvent[]
   aiDrafts           AiDraft[]
+  postedOpportunities Opportunity[]     @relation("postedOpportunities")
 }
 
 model Account {
@@ -129,11 +130,15 @@ model Opportunity {
   targetGrades    String[]
   targetInterests String[]
   isPaid          Boolean         @default(false)
+  ownerId         String?
   createdAt       DateTime        @default(now())
 
+  owner      User?              @relation("postedOpportunities", fields: [ownerId], references: [id], onDelete: Cascade)
   savedBy    SavedOpportunity[]
   feedEvents FeedEvent[]
   aiDrafts   AiDraft[]
+
+  @@index([ownerId])
 }
 
 model SavedOpportunity {

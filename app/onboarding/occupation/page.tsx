@@ -91,8 +91,9 @@ export default function OccupationPage() {
         ))}
         {selected === "EMPLOYER" && (
           <div>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>Company name</label>
+            <label htmlFor="companyName" style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>Company name</label>
             <input
+              id="companyName"
               type="text"
               placeholder="e.g. Acme Corp"
               value={companyName}

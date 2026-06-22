@@ -49,8 +49,9 @@ export default function BasicInfoPage() {
       <p style={{ fontSize: "11px", color: "#666", margin: "0 0 16px" }}>Step 1 of 4 — Basic info</p>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         <div>
-          <label style={labelStyle}>Full name</label>
+          <label htmlFor="name" style={labelStyle}>Full name</label>
           <input
+            id="name"
             type="text"
             autoComplete="name"
             value={form.name}
@@ -60,8 +61,9 @@ export default function BasicInfoPage() {
           {errors.name?.[0] && <p style={errorStyle}>{errors.name[0]}</p>}
         </div>
         <div>
-          <label style={labelStyle}>Date of birth</label>
+          <label htmlFor="dateOfBirth" style={labelStyle}>Date of birth</label>
           <input
+            id="dateOfBirth"
             type="date"
             value={form.dateOfBirth}
             onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
@@ -70,8 +72,9 @@ export default function BasicInfoPage() {
           {errors.dateOfBirth?.[0] && <p style={errorStyle}>{errors.dateOfBirth[0]}</p>}
         </div>
         <div>
-          <label style={labelStyle}>City</label>
+          <label htmlFor="city" style={labelStyle}>City</label>
           <input
+            id="city"
             type="text"
             placeholder="e.g. Chicago"
             value={form.city}

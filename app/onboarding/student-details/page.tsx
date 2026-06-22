@@ -81,8 +81,9 @@ export default function StudentDetailsPage() {
         </div>
         {level === "College" && (
           <div>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>What degree are you pursuing?</label>
+            <label htmlFor="degree" style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>What degree are you pursuing?</label>
             <input
+              id="degree"
               type="text"
               placeholder="e.g. Computer Science, Business Administration"
               value={degree}

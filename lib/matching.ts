@@ -50,3 +50,18 @@ export function rankForUser(profile: MatchProfile, opportunities: OpportunityVie
     .map((o) => scoreOpportunity(profile, o))
     .sort((a, b) => b.score - a.score);
 }
+
+// Maps stored education info to the grade label the scorer expects
+// ("College", "Grade 9".."Grade 12", or null). currentYear is injectable for tests.
+export function gradeLabelFor(
+  u: { schoolLevel: string | null; graduationYear: number | null; occupationType: string | null },
+  currentYear: number = new Date().getFullYear()
+): string | null {
+  if (u.occupationType === "STUDENT_COLLEGE" || u.schoolLevel === "College") return "College";
+  if (u.graduationYear != null) {
+    const grade = 12 - (u.graduationYear - currentYear);
+    if (grade >= 9 && grade <= 12) return `Grade ${grade}`;
+  }
+  if (u.schoolLevel === "High School" || u.occupationType === "STUDENT_HS") return "Grade 12";
+  return null;
+}

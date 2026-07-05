@@ -3,17 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getAiDraftRateLimit } from "@/lib/rate-limit";
 import { generateCoverLetter } from "@/lib/ai";
-import { OccupationType } from "@prisma/client";
-
-function gradeLabelFor(u: { schoolLevel: string | null; graduationYear: number | null; occupationType: OccupationType | null }): string | null {
-  if (u.occupationType === "STUDENT_COLLEGE" || u.schoolLevel === "College") return "College";
-  if (u.graduationYear != null) {
-    const grade = 12 - (u.graduationYear - new Date().getFullYear());
-    if (grade >= 9 && grade <= 12) return `Grade ${grade}`;
-  }
-  if (u.schoolLevel === "High School" || u.occupationType === "STUDENT_HS") return "Grade 12";
-  return null;
-}
+import { gradeLabelFor } from "@/lib/matching";
 
 export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scoreOpportunity, rankForUser, type MatchProfile } from "./matching";
+import { scoreOpportunity, rankForUser, gradeLabelFor, type MatchProfile } from "./matching";
 import type { OpportunityView } from "./opportunities";
 
 const profile: MatchProfile = {
@@ -66,5 +66,27 @@ describe("rankForUser", () => {
       opp({ id: "strong", targetInterests: ["Technology"], targetGrades: ["Grade 11"], location: "New York, NY" }),
     ]);
     expect(ranked[0].opportunity.id).toBe("strong");
+  });
+});
+
+describe("gradeLabelFor", () => {
+  it("returns College for college students (by occupationType or schoolLevel)", () => {
+    expect(gradeLabelFor({ schoolLevel: null, graduationYear: null, occupationType: "STUDENT_COLLEGE" }, 2026)).toBe("College");
+    expect(gradeLabelFor({ schoolLevel: "College", graduationYear: 2029, occupationType: null }, 2026)).toBe("College");
+  });
+
+  it("computes the grade from graduation year", () => {
+    expect(gradeLabelFor({ schoolLevel: "High School", graduationYear: 2027, occupationType: "STUDENT_HS" }, 2026)).toBe("Grade 11");
+    expect(gradeLabelFor({ schoolLevel: "High School", graduationYear: 2026, occupationType: null }, 2026)).toBe("Grade 12");
+  });
+
+  it("falls back to Grade 12 for high schoolers with out-of-range or missing grad years", () => {
+    expect(gradeLabelFor({ schoolLevel: "High School", graduationYear: null, occupationType: null }, 2026)).toBe("Grade 12");
+    expect(gradeLabelFor({ schoolLevel: null, graduationYear: 2040, occupationType: "STUDENT_HS" }, 2026)).toBe("Grade 12");
+  });
+
+  it("returns null when nothing indicates a grade", () => {
+    expect(gradeLabelFor({ schoolLevel: null, graduationYear: null, occupationType: null }, 2026)).toBeNull();
+    expect(gradeLabelFor({ schoolLevel: null, graduationYear: null, occupationType: "EMPLOYER" }, 2026)).toBeNull();
   });
 });

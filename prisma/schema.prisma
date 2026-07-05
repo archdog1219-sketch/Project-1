@@ -75,6 +75,7 @@ model User {
   feedEvents         FeedEvent[]
   aiDrafts           AiDraft[]
   postedOpportunities Opportunity[]     @relation("postedOpportunities")
+  opportunitySkips   OpportunitySkip[]
 }
 
 model Account {
@@ -137,6 +138,7 @@ model Opportunity {
   savedBy    SavedOpportunity[]
   feedEvents FeedEvent[]
   aiDrafts   AiDraft[]
+  skips      OpportunitySkip[]
 
   @@index([ownerId])
 }
@@ -194,4 +196,17 @@ model AiDraft {
   opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
 
   @@unique([userId, opportunityId])
+}
+
+model OpportunitySkip {
+  id            String   @id @default(cuid())
+  userId        String
+  opportunityId String
+  createdAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, opportunityId])
+  @@index([userId])
 }

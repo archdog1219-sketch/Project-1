@@ -30,6 +30,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
         {/* Nav links */}
         <nav style={{ display: "flex", alignItems: "center", padding: "0 12px" }}>
           <Link href="/" className="nav-link">Home</Link>
+          <Link href="/discover" className="nav-link">Discover</Link>
           <Link href="/feed" className="nav-link">Feed</Link>
           <Link href="/tracker" className="nav-link">Tracker</Link>
           <Link href="/browse" className="nav-link">Browse</Link>

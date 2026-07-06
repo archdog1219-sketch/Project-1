@@ -59,3 +59,13 @@ export function getPostRateLimit() {
     prefix: "ratelimit:post",
   });
 }
+
+// Swiping is a legitimately high-frequency action — the shared 40/min write
+// limiter would throttle a fast swiper mid-deck, so it gets its own budget.
+export function getSwipeRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(120, "1 m"),
+    prefix: "ratelimit:swipe",
+  });
+}

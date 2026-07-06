@@ -116,3 +116,9 @@ export const opportunitySubmissionSchema = z.object({
 });
 
 export type OpportunitySubmissionInput = z.infer<typeof opportunitySubmissionSchema>;
+
+export const swipeSchema = z.object({
+  direction: z.enum(["save", "skip"]),
+});
+
+export type SwipeInput = z.infer<typeof swipeSchema>;

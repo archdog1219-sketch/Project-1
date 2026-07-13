@@ -37,7 +37,7 @@ const AppleIcon = () => (
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
@@ -77,6 +77,18 @@ export default function SignUpPage() {
       {serverError && <div style={s.serverError}>{serverError}</div>}
 
       <form onSubmit={handleSubmit}>
+        <div style={{ ...s.field, display: "flex", gap: "8px" }}>
+          <div style={{ flex: 1 }}>
+            <label style={s.label} htmlFor="firstName">First name</label>
+            <input id="firstName" style={errors.firstName ? s.inputError : s.input} type="text" autoComplete="given-name" value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} />
+            {errors.firstName?.[0] && <div style={s.fieldError}>{errors.firstName[0]}</div>}
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={s.label} htmlFor="lastName">Last name</label>
+            <input id="lastName" style={errors.lastName ? s.inputError : s.input} type="text" autoComplete="family-name" value={form.lastName} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} />
+            {errors.lastName?.[0] && <div style={s.fieldError}>{errors.lastName[0]}</div>}
+          </div>
+        </div>
         <div style={s.field}>
           <label style={s.label}>Email address</label>
           <input style={errors.email ? s.inputError : s.input} type="email" autoComplete="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
@@ -95,6 +107,9 @@ export default function SignUpPage() {
         <button type="submit" style={s.submitBtn} disabled={isLoading}>
           {isLoading ? "Creating account..." : "Create account"}
         </button>
+        <p style={{ fontSize: "10px", color: "#999", marginTop: "6px", textAlign: "center" }}>
+          Our Terms require your real name. It isn&apos;t verified at signup — you can verify it later for a badge and boosts.
+        </p>
       </form>
 
       <div style={s.divider}>

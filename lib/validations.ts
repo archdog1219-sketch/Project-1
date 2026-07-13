@@ -123,3 +123,10 @@ export const swipeSchema = z.object({
 });
 
 export type SwipeInput = z.infer<typeof swipeSchema>;
+
+export const identityMockSchema = z.object({
+  legalFirstName: z.string().trim().min(1, "Required").max(50),
+  legalLastName: z.string().trim().min(1, "Required").max(50),
+  issuingCountry: z.string().trim().min(2).max(56),
+  outcome: z.enum(["pass", "fail"]),
+});

@@ -44,6 +44,15 @@ describe("rankSuggestions", () => {
     expect(ranked[0].shared).toBe(1);
   });
 
+  it("ranks verified users first at equal shared-interest counts, but never above more-relevant unverified users", () => {
+    const ranked = rankSuggestions(me, [
+      { id: "unv2", name: "U2", interests: ["Technology", "Science"], verified: false },
+      { id: "unv1", name: "U1", interests: ["Technology"], verified: false },
+      { id: "ver1", name: "V1", interests: ["Technology"], verified: true },
+    ], new Set());
+    expect(ranked.map((u) => u.id)).toEqual(["unv2", "ver1", "unv1"]);
+  });
+
   it("preserves input order for candidates with equal shared counts", () => {
     const ranked = rankSuggestions(me, [
       { id: "first", name: "First", interests: ["Technology"], verified: false },

@@ -15,6 +15,8 @@ export interface ScoredOpportunity {
 const INTEREST_WEIGHT = 3;
 const GRADE_WEIGHT = 2;
 const LOCATION_WEIGHT = 1;
+// Equal to the location weight, below one interest match — relevance still dominates.
+const VERIFIED_OWNER_BONUS = 1;
 
 export function scoreOpportunity(profile: MatchProfile, o: OpportunityView): ScoredOpportunity {
   let score = 0;
@@ -33,6 +35,8 @@ export function scoreOpportunity(profile: MatchProfile, o: OpportunityView): Sco
   const sameLocation =
     profile.location != null && o.location.toLowerCase() === profile.location.toLowerCase();
   if (remote || sameLocation) score += LOCATION_WEIGHT;
+
+  if (o.ownerVerified) score += VERIFIED_OWNER_BONUS;
 
   let reason = "";
   if (overlap.length > 0) reason = "Matches your interests";

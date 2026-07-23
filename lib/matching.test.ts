@@ -23,6 +23,12 @@ describe("scoreOpportunity", () => {
     expect(r.reason).toBe("Matches your interests");
   });
 
+  it("gives verified-owner listings a bonus smaller than one interest match", () => {
+    const base = scoreOpportunity(profile, opp({ targetInterests: [], targetGrades: [], location: "X" }));
+    const boosted = scoreOpportunity(profile, opp({ targetInterests: [], targetGrades: [], location: "X", ownerVerified: true }));
+    expect(boosted.score - base.score).toBe(1);
+  });
+
   it("reports grade eligibility when the grade matches and interests do not", () => {
     const r = scoreOpportunity(profile, opp({ targetInterests: ["Law"], targetGrades: ["Grade 11"] }));
     expect(r.score).toBeGreaterThan(0);

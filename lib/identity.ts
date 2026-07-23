@@ -38,7 +38,13 @@ const mockProvider: IdentityProvider = {
 };
 
 export function getIdentityProvider(): IdentityProvider {
-  // IDV_PROVIDER=stripe_identity will select the real vendor once implemented.
+  // IDV_PROVIDER selects the vendor. Only the mock exists today; throwing on
+  // unknown values ensures wiring a real vendor later can't silently fall
+  // back to the mock (whose completion endpoint must never run in that case).
+  const configured = process.env.IDV_PROVIDER ?? "mock";
+  if (configured !== "mock") {
+    throw new Error(`Identity provider "${configured}" is not implemented yet.`);
+  }
   return mockProvider;
 }
 

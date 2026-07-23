@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { updateProfileSchema } from "@/lib/validations";
 import { getWriteRateLimit } from "@/lib/rate-limit";
+import { namesMatch } from "@/lib/identity";
 
 export async function PATCH(request: NextRequest) {
   const session = await auth();
@@ -24,9 +25,23 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  // The Verified badge asserts the profile name matches a checked ID. If a
+  // verified user changes their name to something that no longer matches,
+  // verification is revoked (LinkedIn-style) and they must re-verify.
+  let revokeVerification = false;
+  if (parsed.data.name !== undefined) {
+    const current = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true, idVerified: true },
+    });
+    if (current?.idVerified && !namesMatch(current.name, parsed.data.name)) {
+      revokeVerification = true;
+    }
+  }
+
   const updated = await db.user.update({
     where: { id: session.user.id },
-    data: parsed.data,
+    data: { ...parsed.data, ...(revokeVerification ? { idVerified: false } : {}) },
     select: {
       id: true,
       name: true,
@@ -42,6 +57,19 @@ export async function PATCH(request: NextRequest) {
       contactEmailVisible: true,
     },
   });
+
+  if (revokeVerification) {
+    await db.identityVerification.updateMany({
+      where: { userId: session.user.id },
+      data: {
+        status: "FAILED",
+        nameMatched: false,
+        verifiedAt: null,
+        failureReason:
+          "Profile name changed after verification — verify again to restore your badge.",
+      },
+    });
+  }
 
   return NextResponse.json(updated);
 }

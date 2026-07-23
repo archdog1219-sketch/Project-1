@@ -12,7 +12,7 @@ function opp(over: Partial<OpportunityView>): OpportunityView {
   return {
     id: "x", title: "T", org: "O", type: "Internships", location: "Remote",
     description: "", tags: [], deadline: null, applyUrl: null,
-    targetGrades: ["Grade 11"], targetInterests: ["Technology"], isPaid: false, ...over,
+    targetGrades: ["Grade 11"], targetInterests: ["Technology"], isPaid: false, ownerVerified: false, ...over,
   };
 }
 

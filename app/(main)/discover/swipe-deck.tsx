@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { TYPE_LABELS } from "@/lib/listings";
 import type { ScoredOpportunity } from "@/lib/matching";
+import VerifiedBadge from "@/components/verified-badge";
 
 const THRESHOLD = 90; // px of drag before a release commits the swipe
 const FLY_MS = 220;
@@ -138,6 +139,7 @@ export default function SwipeDeck({ initialDeck }: { initialDeck: ScoredOpportun
 
           <div style={{ display: "flex", gap: "4px", marginTop: "8px", flexWrap: "wrap" }}>
             <span style={{ background: "#d8dfea", color: "#3b5998", borderRadius: "2px", padding: "1px 6px", fontSize: "10px", fontWeight: "bold" }}>{TYPE_LABELS[o.type]}</span>
+            {o.ownerVerified && <VerifiedBadge size={9} />}
             {current.reason && (
               <span style={{ background: "#e8f5e9", color: "#2e7d32", borderRadius: "2px", padding: "1px 6px", fontSize: "10px" }}>✓ {current.reason}</span>
             )}

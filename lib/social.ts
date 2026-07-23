@@ -79,6 +79,7 @@ export interface FeedItem {
   createdAt: Date;
   actorId: string;
   actorName: string | null;
+  actorVerified: boolean;
   opportunityId: string;
   opportunityTitle: string;
   opportunityOrg: string;
@@ -97,7 +98,7 @@ export async function getFeed(userId: string, limit = 50): Promise<FeedItem[]> {
     orderBy: { createdAt: "desc" },
     take: limit,
     include: {
-      actor: { select: { id: true, name: true } },
+      actor: { select: { id: true, name: true, idVerified: true } },
       opportunity: { select: { id: true, title: true, org: true } },
     },
   });
@@ -108,6 +109,7 @@ export async function getFeed(userId: string, limit = 50): Promise<FeedItem[]> {
     createdAt: e.createdAt,
     actorId: e.actor.id,
     actorName: e.actor.name,
+    actorVerified: e.actor.idVerified,
     opportunityId: e.opportunity.id,
     opportunityTitle: e.opportunity.title,
     opportunityOrg: e.opportunity.org,
@@ -120,6 +122,7 @@ export interface Suggestion {
   id: string;
   name: string | null;
   shared: number;
+  verified: boolean;
 }
 
 export async function getFollowSuggestions(userId: string, limit = 5): Promise<Suggestion[]> {
@@ -135,7 +138,7 @@ export async function getFollowSuggestions(userId: string, limit = 5): Promise<S
       id: { not: userId },
       interests: { hasSome: me.interests },
     },
-    select: { id: true, name: true, interests: true },
+    select: { id: true, name: true, interests: true, idVerified: true },
     take: 50,
   });
 
@@ -145,9 +148,13 @@ export async function getFollowSuggestions(userId: string, limit = 5): Promise<S
   });
   const alreadyFollowing = new Set(following.map((f) => f.followingId));
 
-  return rankSuggestions({ id: me.id, interests: me.interests }, candidates, alreadyFollowing)
+  return rankSuggestions(
+    { id: me.id, interests: me.interests },
+    candidates.map((c) => ({ id: c.id, name: c.name, interests: c.interests, verified: c.idVerified })),
+    alreadyFollowing
+  )
     .slice(0, limit)
-    .map((c) => ({ id: c.id, name: c.name, shared: c.shared }));
+    .map((c) => ({ id: c.id, name: c.name, shared: c.shared, verified: c.verified }));
 }
 
 // --- Tracker ---

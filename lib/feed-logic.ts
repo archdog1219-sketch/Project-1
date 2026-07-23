@@ -25,6 +25,7 @@ export interface SuggestionCandidate {
   id: string;
   name: string | null;
   interests: string[];
+  verified: boolean;
 }
 
 // Rank candidate users by number of shared interests with `me`, descending.

@@ -27,27 +27,27 @@ describe("rankSuggestions", () => {
   const me = { id: "me", interests: ["Technology", "Science"] };
   it("ranks candidates by shared-interest count, excludes self and already-followed", () => {
     const ranked = rankSuggestions(me, [
-      { id: "a", name: "A", interests: ["Technology", "Science"] },
-      { id: "b", name: "B", interests: ["Law"] },
-      { id: "me", name: "Me", interests: ["Technology"] },
-      { id: "c", name: "C", interests: ["Technology"] },
+      { id: "a", name: "A", interests: ["Technology", "Science"], verified: false },
+      { id: "b", name: "B", interests: ["Law"], verified: false },
+      { id: "me", name: "Me", interests: ["Technology"], verified: false },
+      { id: "c", name: "C", interests: ["Technology"], verified: false },
     ], new Set(["b"]));
     expect(ranked.map((u) => u.id)).toEqual(["a", "c"]);
   });
   it("drops candidates with zero shared interests", () => {
-    const ranked = rankSuggestions(me, [{ id: "x", name: "X", interests: ["Art"] }], new Set());
+    const ranked = rankSuggestions(me, [{ id: "x", name: "X", interests: ["Art"], verified: false }], new Set());
     expect(ranked).toEqual([]);
   });
   it("matches interests case-insensitively", () => {
-    const ranked = rankSuggestions(me, [{ id: "a", name: "A", interests: ["technology"] }], new Set());
+    const ranked = rankSuggestions(me, [{ id: "a", name: "A", interests: ["technology"], verified: false }], new Set());
     expect(ranked.map((u) => u.id)).toEqual(["a"]);
     expect(ranked[0].shared).toBe(1);
   });
 
   it("preserves input order for candidates with equal shared counts", () => {
     const ranked = rankSuggestions(me, [
-      { id: "first", name: "First", interests: ["Technology"] },
-      { id: "second", name: "Second", interests: ["Science"] },
+      { id: "first", name: "First", interests: ["Technology"], verified: false },
+      { id: "second", name: "Second", interests: ["Science"], verified: false },
     ], new Set());
     expect(ranked.map((u) => u.id)).toEqual(["first", "second"]);
   });

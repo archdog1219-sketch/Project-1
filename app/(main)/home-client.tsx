@@ -5,6 +5,7 @@ import Link from "next/link";
 import { OPPORTUNITY_TYPES, TYPE_LABELS, type OpportunityTypeLabel } from "@/lib/listings";
 import { type OpportunityView } from "@/lib/opportunities";
 import { type ScoredOpportunity } from "@/lib/matching";
+import VerifiedBadge from "@/components/verified-badge";
 
 const s = {
   page: { display: "flex", gap: "12px", padding: "12px 16px", maxWidth: "960px", margin: "0 auto", width: "100%", boxSizing: "border-box" as const },
@@ -41,6 +42,7 @@ function Card({ listing, reason }: { listing: OpportunityView; reason?: string }
           <div style={s.cardMeta}>{listing.org} &nbsp;·&nbsp; {listing.location}</div>
           <div style={{ display: "flex", gap: "4px", marginTop: "5px", flexWrap: "wrap" as const }}>
             <span style={s.tag}>{TYPE_LABELS[listing.type]}</span>
+            {listing.ownerVerified && <VerifiedBadge size={9} />}
             {reason ? <span style={s.matchBadge}>✓ {reason}</span> : null}
             {listing.tags.map((tag) => <span key={tag} style={s.tagGray}>{tag}</span>)}
           </div>

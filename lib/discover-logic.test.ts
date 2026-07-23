@@ -13,7 +13,7 @@ function opp(id: string, over: Partial<OpportunityView> = {}): OpportunityView {
   return {
     id, title: "T", org: "O", type: "Internships", location: "Remote",
     description: "", tags: [], deadline: null, applyUrl: null,
-    targetGrades: [], targetInterests: [], isPaid: false, ...over,
+    targetGrades: [], targetInterests: [], isPaid: false, ownerVerified: false, ...over,
   };
 }
 

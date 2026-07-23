@@ -15,9 +15,12 @@ export interface OpportunityView {
   targetGrades: string[];
   targetInterests: string[];
   isPaid: boolean;
+  ownerVerified: boolean;
 }
 
-function toView(o: Prisma.OpportunityGetPayload<object>): OpportunityView {
+function toView(
+  o: Prisma.OpportunityGetPayload<{ include: { owner: { select: { idVerified: true } } } }>
+): OpportunityView {
   return {
     id: o.id,
     title: o.title,
@@ -31,16 +34,22 @@ function toView(o: Prisma.OpportunityGetPayload<object>): OpportunityView {
     targetGrades: o.targetGrades,
     targetInterests: o.targetInterests,
     isPaid: o.isPaid,
+    ownerVerified: o.owner?.idVerified ?? false,
   };
 }
 
+const OWNER_INCLUDE = { owner: { select: { idVerified: true } } } as const;
+
 export async function getAllOpportunities(): Promise<OpportunityView[]> {
-  const rows = await db.opportunity.findMany({ orderBy: { createdAt: "asc" } });
+  const rows = await db.opportunity.findMany({
+    orderBy: { createdAt: "asc" },
+    include: OWNER_INCLUDE,
+  });
   return rows.map(toView);
 }
 
 export async function getOpportunityById(id: string): Promise<OpportunityView | null> {
-  const row = await db.opportunity.findUnique({ where: { id } });
+  const row = await db.opportunity.findUnique({ where: { id }, include: OWNER_INCLUDE });
   return row ? toView(row) : null;
 }
 
@@ -48,6 +57,7 @@ export async function getOwnedOpportunities(userId: string): Promise<Opportunity
   const rows = await db.opportunity.findMany({
     where: { ownerId: userId },
     orderBy: { createdAt: "desc" },
+    include: OWNER_INCLUDE,
   });
   return rows.map(toView);
 }

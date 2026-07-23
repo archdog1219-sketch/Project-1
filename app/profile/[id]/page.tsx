@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/lib/auth";
+import VerifiedBadge from "@/components/verified-badge";
 import { ProfileSidebar } from "@/components/profile/sidebar";
 import { AboutSection } from "@/components/profile/about-section";
 import { EducationSection } from "@/components/profile/education-section";
@@ -38,6 +40,8 @@ export default async function ProfilePage({
       contactEmail: true,
       contactEmailVisible: true,
       createdAt: true,
+      idVerified: true,
+      hasEduEmail: true,
     },
   });
 
@@ -64,6 +68,11 @@ export default async function ProfilePage({
               isOwnProfile={isOwnProfile}
             />
             <div className="mt-4 bg-white rounded-2xl border border-gray-100 p-4">
+              {user.idVerified && (
+                <div className="mb-2 text-center">
+                  <VerifiedBadge size={11} />
+                </div>
+              )}
               {session?.user?.id && !isOwnProfile && (
                 <FollowButton targetId={id} initialFollowing={viewerFollows} />
               )}
@@ -72,6 +81,16 @@ export default async function ProfilePage({
                 {" · "}
                 <span className="font-semibold text-gray-700">{counts.following}</span> following
               </p>
+              {user.hasEduEmail && (
+                <p className="text-[10px] text-gray-500 mt-2 text-center">🎓 School email on file</p>
+              )}
+              {isOwnProfile && !user.idVerified && (
+                <p className="mt-2 text-center">
+                  <Link href="/verify" className="text-xs text-indigo-600 hover:underline">
+                    Get verified →
+                  </Link>
+                </p>
+              )}
             </div>
           </div>
           <div className="flex-1 flex flex-col gap-6">

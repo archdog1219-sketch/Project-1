@@ -46,6 +46,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  events: {
+    async createUser({ user }) {
+      if (user.id && user.email?.toLowerCase().endsWith(".edu")) {
+        await db.user.update({ where: { id: user.id }, data: { hasEduEmail: true } });
+      }
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

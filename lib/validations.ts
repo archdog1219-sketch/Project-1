@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const signUpSchema = z
   .object({
+    firstName: z.string().trim().min(1, "First name is required").max(50),
+    lastName: z.string().trim().min(1, "Last name is required").max(50),
     email: z.string().email("Please enter a valid email address"),
     // Password policy: 10+ chars, upper, lower, digit required.
     // Special characters intentionally not required (user preference).
@@ -24,7 +26,6 @@ export const signInSchema = z.object({
 });
 
 export const basicInfoSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").max(100),
   dateOfBirth: z
     .string()
     .refine((val) => !isNaN(Date.parse(val)), "Please enter a valid date"),
@@ -122,3 +123,10 @@ export const swipeSchema = z.object({
 });
 
 export type SwipeInput = z.infer<typeof swipeSchema>;
+
+export const identityMockSchema = z.object({
+  legalFirstName: z.string().trim().min(1, "Required").max(50),
+  legalLastName: z.string().trim().min(1, "Required").max(50),
+  issuingCountry: z.string().trim().min(2).max(56),
+  outcome: z.enum(["pass", "fail"]),
+});

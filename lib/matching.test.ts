@@ -12,7 +12,7 @@ function opp(over: Partial<OpportunityView>): OpportunityView {
   return {
     id: "x", title: "T", org: "O", type: "Internships", location: "Remote",
     description: "", tags: [], deadline: null, applyUrl: null,
-    targetGrades: ["Grade 11"], targetInterests: ["Technology"], isPaid: false, ...over,
+    targetGrades: ["Grade 11"], targetInterests: ["Technology"], isPaid: false, ownerVerified: false, ...over,
   };
 }
 
@@ -21,6 +21,12 @@ describe("scoreOpportunity", () => {
     const r = scoreOpportunity(profile, opp({ targetInterests: ["Technology", "Science"], targetGrades: [] }));
     expect(r.score).toBeGreaterThan(0);
     expect(r.reason).toBe("Matches your interests");
+  });
+
+  it("gives verified-owner listings a bonus smaller than one interest match", () => {
+    const base = scoreOpportunity(profile, opp({ targetInterests: [], targetGrades: [], location: "X" }));
+    const boosted = scoreOpportunity(profile, opp({ targetInterests: [], targetGrades: [], location: "X", ownerVerified: true }));
+    expect(boosted.score - base.score).toBe(1);
   });
 
   it("reports grade eligibility when the grade matches and interests do not", () => {

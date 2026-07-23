@@ -64,6 +64,8 @@ model User {
   careerGoals         String?
   profilePhoto        String?
   onboardingComplete  Boolean         @default(false)
+  hasEduEmail        Boolean   @default(false)
+  idVerified         Boolean   @default(false)
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
 
@@ -76,6 +78,7 @@ model User {
   aiDrafts           AiDraft[]
   postedOpportunities Opportunity[]     @relation("postedOpportunities")
   opportunitySkips   OpportunitySkip[]
+  identityVerification IdentityVerification?
 }
 
 model Account {
@@ -209,4 +212,25 @@ model OpportunitySkip {
 
   @@unique([userId, opportunityId])
   @@index([userId])
+}
+
+enum IdvStatus {
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+model IdentityVerification {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  status         IdvStatus @default(PENDING)
+  provider       String    // "mock" now; "stripe_identity" / "persona" later
+  providerRef    String?
+  nameMatched    Boolean   @default(false)
+  issuingCountry String?
+  failureReason  String?
+  createdAt      DateTime  @default(now())
+  verifiedAt     DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

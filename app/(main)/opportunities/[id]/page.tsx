@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { getSaveStatus } from "@/lib/social";
 import { db } from "@/lib/db";
 import OpportunityActions from "./opportunity-actions";
+import VerifiedBadge from "@/components/verified-badge";
 import AiAssist from "./ai-assist";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -49,6 +50,7 @@ export default async function OpportunityPage({ params }: { params: Promise<{ id
               <span style={{ background: "#d8dfea", color: "#3b5998", borderRadius: "2px", padding: "2px 7px", fontSize: "11px", fontWeight: "bold" }}>
                 {TYPE_LABELS[listing.type]}
               </span>
+              {listing.ownerVerified && <VerifiedBadge size={10} />}
               {listing.tags.map((tag) => (
                 <span key={tag} style={{ background: "#f0f0f0", color: "#555", borderRadius: "2px", padding: "2px 7px", fontSize: "11px" }}>
                   {tag}

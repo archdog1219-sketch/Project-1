@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { email, password } = parsed.data;
+  const { firstName, lastName, email, password } = parsed.data;
 
   const existing = await db.user.findUnique({
     where: { email },
@@ -43,6 +43,8 @@ export async function POST(request: NextRequest) {
     data: {
       email,
       passwordHash,
+      name: `${firstName.trim()} ${lastName.trim()}`,
+      hasEduEmail: email.toLowerCase().endsWith(".edu"),
     },
   });
 

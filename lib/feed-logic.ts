@@ -25,6 +25,7 @@ export interface SuggestionCandidate {
   id: string;
   name: string | null;
   interests: string[];
+  verified: boolean;
 }
 
 // Rank candidate users by number of shared interests with `me`, descending.
@@ -42,5 +43,5 @@ export function rankSuggestions(
       shared: c.interests.filter((i) => mine.has(i.toLowerCase())).length,
     }))
     .filter((c) => c.shared > 0)
-    .sort((a, b) => b.shared - a.shared);
+    .sort((a, b) => b.shared - a.shared || Number(b.verified) - Number(a.verified));
 }

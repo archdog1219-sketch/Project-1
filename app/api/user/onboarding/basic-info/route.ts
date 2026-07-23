@@ -36,7 +36,6 @@ export async function PATCH(request: NextRequest) {
   await db.user.update({
     where: { id: session.user.id },
     data: {
-      name: parsed.data.name,
       dateOfBirth: dob,
       city: parsed.data.city,
     },

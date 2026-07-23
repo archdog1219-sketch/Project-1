@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getFeed, getFollowSuggestions } from "@/lib/social";
+import VerifiedBadge from "@/components/verified-badge";
 import SuggestionsRail from "./feed-client";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function FeedPage() {
               </div>
               <div style={{ fontSize: "12px", lineHeight: 1.5 }}>
                 <Link href={`/profile/${e.actorId}`} style={{ color: "#3b5998", fontWeight: "bold", textDecoration: "none" }}>{e.actorName ?? "A student"}</Link>
+                {e.actorVerified && <> <VerifiedBadge size={9} /></>}
                 {" "}{VERB[e.type] ?? "updated"}{" "}
                 <Link href={`/opportunities/${e.opportunityId}`} style={{ color: "#3b5998", fontWeight: "bold", textDecoration: "none" }}>{e.opportunityTitle}</Link>
                 {" "}at {e.opportunityOrg}

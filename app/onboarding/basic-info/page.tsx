@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ProgressBar } from "@/components/onboarding/progress-bar";
 import { basicInfoSchema } from "@/lib/validations";
@@ -10,10 +10,24 @@ const errorStyle = { fontSize: "11px", color: "#c00", margin: "4px 0 0" } as con
 
 export default function BasicInfoPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", dateOfBirth: "", city: "" });
+  const [form, setForm] = useState({ dateOfBirth: "", city: "" });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/user/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.name) setDisplayName(data.name);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,18 +62,11 @@ export default function BasicInfoPage() {
       <h2 style={{ fontSize: "18px", fontWeight: "bold", color: "#3b5998", margin: "16px 0 2px" }}>Tell us about yourself</h2>
       <p style={{ fontSize: "11px", color: "#666", margin: "0 0 16px" }}>Step 1 of 4 — Basic info</p>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <div>
-          <label htmlFor="name" style={labelStyle}>Full name</label>
-          <input
-            id="name"
-            type="text"
-            autoComplete="name"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            style={inputStyle}
-          />
-          {errors.name?.[0] && <p style={errorStyle}>{errors.name[0]}</p>}
-        </div>
+        {displayName && (
+          <p style={{ fontSize: "12px", color: "#666", margin: "0 0 10px" }}>
+            Signing up as <b style={{ color: "#333" }}>{displayName}</b>
+          </p>
+        )}
         <div>
           <label htmlFor="dateOfBirth" style={labelStyle}>Date of birth</label>
           <input

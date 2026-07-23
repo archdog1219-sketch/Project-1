@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import VerifiedBadge from "@/components/verified-badge";
 
 export interface SuggestionView {
   id: string;
   name: string | null;
   shared: number;
+  verified: boolean;
 }
 
 export default function SuggestionsRail({ initial }: { initial: SuggestionView[] }) {
@@ -40,6 +42,7 @@ export default function SuggestionsRail({ initial }: { initial: SuggestionView[]
           </div>
           <div style={{ flex: 1, minWidth: 0, fontSize: "11px" }}>
             <Link href={`/profile/${p.id}`} style={{ color: "#3b5998", fontWeight: "bold", textDecoration: "none" }}>{p.name ?? "Student"}</Link>
+            {p.verified && <> <VerifiedBadge size={9} /></>}
             <div style={{ color: "#999", fontSize: "9px" }}>{p.shared} shared interest{p.shared === 1 ? "" : "s"}</div>
           </div>
           <button onClick={() => follow(p.id)} disabled={busy === p.id} style={{ background: "#e8edf5", color: "#3b5998", border: "1px solid #c8d0e0", padding: "2px 8px", fontSize: "10px", borderRadius: "2px", cursor: "pointer" }}>

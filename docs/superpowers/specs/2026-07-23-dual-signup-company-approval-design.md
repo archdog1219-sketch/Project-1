@@ -38,7 +38,7 @@ Becomes a chooser screen with two options: "I'm looking for opportunities" → `
 
 ## Admin review (`/admin/companies`)
 
-- Access control: no new role system. A session's email is checked against `ADMIN_EMAILS`, a comma-separated env var. Anyone not on the list gets redirected away — same shape as the existing `getEmployerUserId()` gate pattern in `lib/employer.ts`, just checking an env allow-list instead of a DB flag, since there is exactly one reviewer today.
+- Access control: no new role system. A session's email is checked against `ADMIN_EMAILS`, a comma-separated env var. Anyone not on the list gets a 404 (not a redirect — a non-admin shouldn't learn the page exists). Same shape as the existing `getEmployerUserId()` gate pattern in `lib/employer.ts`, just checking an env allow-list instead of a DB flag, since there is exactly one reviewer today. Fails closed: an unset or empty `ADMIN_EMAILS` grants nobody access.
 - Lists applications, most recent first, with a status filter (Pending / Approved / Rejected). Pending applications show Approve / Reject actions.
 - **Approve:**
   1. Creates the real `User` row: `email` = work email, `name` = contact name, `occupationType: EMPLOYER`, `companyName` set, `phoneVerified: true` (the human review is this account's trust gate — it does not go through phone OTP), `emailVerified: null` (still unset — proven in step 3).
@@ -91,7 +91,13 @@ No relation from `CompanyApplication` to `User` — they're linked only by email
 
 - `sendCompanyApplicationNotification(adminEmail, application)` — to the founder, on submission.
 - `sendCompanyApprovedEmail(to, setPasswordUrl)` — to the applicant, on approval.
-- `sendCompanyRejectedEmail(to)` — to the applicant, on rejection.
+- `sendCompanyRejectedEmail(to, companyName)` — to the applicant, on rejection.
+
+## Migration and boundary notes
+
+- **Existing accounts must be backfilled.** Every current user defaults to `phoneVerified: false`, so shipping the login gate without a backfill locks out the entire existing user base. A one-off script marks all users with no phone on file as phone-verified before the gate goes live.
+- **The phone gate covers credentials logins only.** OAuth users (Google/Apple) authenticate through the NextAuth adapter and never reach `authorize()`, and they never supply a phone number. They stay gated by their provider's own verification. Forcing them through phone verification would lock out existing OAuth accounts with no recovery path, so it is deliberately not done.
+- **The mock OTP code is visible to anyone who knows the email address**, because the dev page reads it straight from the database. This is tolerable only as a development stand-in; the UI says so in plain language, and real SMS must land before any real launch.
 
 ## Out of scope v1
 

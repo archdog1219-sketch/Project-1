@@ -66,6 +66,10 @@ model User {
   onboardingComplete  Boolean         @default(false)
   hasEduEmail        Boolean   @default(false)
   idVerified         Boolean   @default(false)
+  phone              String?
+  phoneVerified      Boolean   @default(false)
+  phoneOtpCode       String?
+  phoneOtpExpiresAt  DateTime?
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
 
@@ -233,4 +237,29 @@ model IdentityVerification {
   verifiedAt     DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum CompanyApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Intentionally has NO relation to User: the whole point of the approval flow
+// is that no User exists until the founder approves. Linked only by email.
+model CompanyApplication {
+  id                      String                   @id @default(cuid())
+  companyName             String
+  contactName             String
+  workEmail               String
+  website                 String?
+  description             String?
+  status                  CompanyApplicationStatus @default(PENDING)
+  setPasswordToken        String?                  @unique
+  setPasswordTokenExpires DateTime?
+  createdAt               DateTime                 @default(now())
+  decidedAt               DateTime?
+
+  @@index([status])
+  @@index([workEmail])
 }

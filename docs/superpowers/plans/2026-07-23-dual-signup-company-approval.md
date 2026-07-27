@@ -1576,18 +1576,29 @@ git commit -m "feat: add admin dashboard for reviewing company applications"
 
 - [ ] **Step 1: Add `setPasswordSchema` to `lib/validations.ts`**
 
-Password rules are copied verbatim from `signUpSchema` so both paths enforce the same policy:
+Both signup paths must enforce one password policy, so extract it rather than duplicating the rules. Near the top of `lib/validations.ts`, directly above `signUpSchema`, add:
+
+```typescript
+// Password policy: 10+ chars, upper, lower, digit required.
+// Special characters intentionally not required (user preference).
+// Shared by individual signup and the approved-company set-password flow.
+const passwordPolicy = z
+  .string()
+  .min(10, "Password must be at least 10 characters")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number");
+```
+
+Then replace the inline `password:` rules inside `signUpSchema` (and its now-redundant two-line policy comment) with `password: passwordPolicy,`, leaving the rest of that schema untouched.
+
+Finally append the new schema:
 
 ```typescript
 export const setPasswordSchema = z
   .object({
     token: z.string().min(1),
-    password: z
-      .string()
-      .min(10, "Password must be at least 10 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+    password: passwordPolicy,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

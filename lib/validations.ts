@@ -8,7 +8,8 @@ export const signUpSchema = z
     phone: z
       .string()
       .trim()
-      .regex(/^\+?[0-9\s\-().]{7,20}$/, "Please enter a valid phone number"),
+      .regex(/^\+?[0-9\s\-().]{7,20}$/, "Please enter a valid phone number")
+      .refine((v) => v.replace(/[^0-9]/g, "").length >= 7, "Please enter a valid phone number"),
     // Password policy: 10+ chars, upper, lower, digit required.
     // Special characters intentionally not required (user preference).
     password: z
@@ -117,4 +118,13 @@ export const identityMockSchema = z.object({
   legalLastName: z.string().trim().min(1, "Required").max(50),
   issuingCountry: z.string().trim().min(2).max(56),
   outcome: z.enum(["pass", "fail"]),
+});
+
+export const verifyPhoneSchema = z.object({
+  email: z.string().email(),
+  code: z.string().trim().regex(/^[0-9]{6}$/, "Enter the 6-digit code"),
+});
+
+export const resendPhoneOtpSchema = z.object({
+  email: z.string().email(),
 });

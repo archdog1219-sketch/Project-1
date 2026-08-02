@@ -1,10 +1,14 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { isIdentityMockEnabled } from "@/lib/identity";
 import MockForm from "./mock-form";
 
 export const dynamic = "force-dynamic";
 
 export default async function VerifyMockPage() {
+  // Never reachable in production: the mock would hand out a real badge.
+  if (!isIdentityMockEnabled()) notFound();
+
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/verify");
 

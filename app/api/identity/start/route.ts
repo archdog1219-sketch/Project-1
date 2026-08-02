@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getIdentityProvider, getVerification } from "@/lib/identity";
+import { getIdentityProvider, getVerification, isIdentityMockEnabled } from "@/lib/identity";
 import { getWriteRateLimit } from "@/lib/rate-limit";
 
 export async function POST() {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  // No usable provider in production yet — don't open a session that can
+  // never be completed (the mock's completion endpoint is refused there).
+  if (getIdentityProvider().name === "mock" && !isIdentityMockEnabled()) {
+    return NextResponse.json(
+      { error: "Identity verification isn't available yet." },
+      { status: 503 }
+    );
   }
   const { success } = await getWriteRateLimit().limit(session.user.id);
   if (!success) {

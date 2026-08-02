@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { signUpSchema } from "@/lib/validations";
 import { sendVerificationEmail } from "@/lib/email";
 import { getRegistrationRateLimit } from "@/lib/rate-limit";
+import { generateOtpCode, normalizePhone, getPhoneOtpProvider, OTP_TTL_MS } from "@/lib/phone-otp";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { firstName, lastName, email, password } = parsed.data;
+  const { firstName, lastName, email, phone, password } = parsed.data;
 
   const existing = await db.user.findUnique({
     where: { email },
@@ -39,14 +40,22 @@ export async function POST(request: NextRequest) {
 
   const passwordHash = await bcrypt.hash(password, 12);
 
+  const otpCode = generateOtpCode();
+  const normalizedPhone = normalizePhone(phone);
+
   await db.user.create({
     data: {
       email,
       passwordHash,
       name: `${firstName.trim()} ${lastName.trim()}`,
       hasEduEmail: email.toLowerCase().endsWith(".edu"),
+      phone: normalizedPhone,
+      phoneOtpCode: otpCode,
+      phoneOtpExpiresAt: new Date(Date.now() + OTP_TTL_MS),
     },
   });
+
+  await getPhoneOtpProvider().sendOtp(normalizedPhone, otpCode);
 
   const token = nanoid(32);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);

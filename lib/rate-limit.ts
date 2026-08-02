@@ -69,3 +69,32 @@ export function getSwipeRateLimit() {
     prefix: "ratelimit:swipe",
   });
 }
+
+// Brute-force guard on 6-digit OTP entry. Keyed by email, not IP, so one
+// attacker cannot burn a victim's budget from many addresses.
+export function getPhoneOtpRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(10, "15 m"),
+    prefix: "ratelimit:phoneotp",
+  });
+}
+
+// Company applications are reviewed by hand — a low IP cap is plenty.
+export function getCompanyApplicationRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(3, "1 d"),
+    prefix: "ratelimit:companyapp",
+  });
+}
+
+// One-shot set-password links from approved companies. Kept out of the
+// registration bucket so shared office IPs can't exhaust each other.
+export function getSetPasswordRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(10, "1 h"),
+    prefix: "ratelimit:setpassword",
+  });
+}

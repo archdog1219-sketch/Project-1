@@ -6,8 +6,7 @@ import { OccupationType } from "@prisma/client";
 import { getWriteRateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
-  occupationType: z.enum(["STUDENT", "EMPLOYER", "OTHER"]),
-  companyName: z.string().max(200).optional(),
+  occupationType: z.enum(["STUDENT", "OTHER"]),
 });
 
 export async function PATCH(request: NextRequest) {
@@ -27,21 +26,16 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const { occupationType, companyName } = parsed.data;
+  const { occupationType } = parsed.data;
 
+  // EMPLOYER is deliberately not reachable here: company accounts are created
+  // only by founder approval in /admin/companies.
   const dbOccupationType =
-    occupationType === "STUDENT"
-      ? OccupationType.STUDENT_HS
-      : occupationType === "EMPLOYER"
-      ? OccupationType.EMPLOYER
-      : OccupationType.OTHER;
+    occupationType === "STUDENT" ? OccupationType.STUDENT_HS : OccupationType.OTHER;
 
   await db.user.update({
     where: { id: session.user.id },
-    data: {
-      occupationType: dbOccupationType,
-      companyName: companyName ?? null,
-    },
+    data: { occupationType: dbOccupationType },
   });
 
   return NextResponse.json({ success: true });

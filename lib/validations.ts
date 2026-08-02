@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+// Password policy: 10+ chars, upper, lower, digit required.
+// Special characters intentionally not required (user preference).
+// Shared by individual signup and the approved-company set-password flow.
+const passwordPolicy = z
+  .string()
+  .min(10, "Password must be at least 10 characters")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number");
+
 export const signUpSchema = z
   .object({
     firstName: z.string().trim().min(1, "First name is required").max(50),
@@ -10,14 +20,7 @@ export const signUpSchema = z
       .trim()
       .regex(/^\+?[0-9\s\-().]{7,20}$/, "Please enter a valid phone number")
       .refine((v) => v.replace(/[^0-9]/g, "").length >= 7, "Please enter a valid phone number"),
-    // Password policy: 10+ chars, upper, lower, digit required.
-    // Special characters intentionally not required (user preference).
-    password: z
-      .string()
-      .min(10, "Password must be at least 10 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+    password: passwordPolicy,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -73,6 +76,17 @@ export const updateProfileSchema = z.object({
   contactEmail: z.string().email().optional().or(z.literal("")),
   contactEmailVisible: z.boolean().optional(),
 });
+
+export const setPasswordSchema = z
+  .object({
+    token: z.string().min(1),
+    password: passwordPolicy,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
@@ -133,7 +147,14 @@ export const companyApplicationSchema = z.object({
   companyName: z.string().trim().min(2, "Company name is required").max(200),
   contactName: z.string().trim().min(2, "Your name is required").max(100),
   workEmail: z.string().trim().email("Please enter a valid work email address"),
-  website: z.string().trim().url("Website must be a valid link").max(300).optional().or(z.literal("")),
+  website: z
+    .string()
+    .trim()
+    .url("Website must be a valid link")
+    .max(300)
+    .refine((v) => /^https?:\/\//i.test(v), "Website must start with http:// or https://")
+    .optional()
+    .or(z.literal("")),
   description: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 

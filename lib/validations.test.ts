@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { signUpSchema } from "./validations";
+import { signUpSchema, companyApplicationSchema } from "./validations";
 
 function validSignUp(overrides: Partial<Record<string, unknown>> = {}) {
   return {
@@ -37,5 +37,33 @@ describe("signUpSchema phone validation", () => {
   it("rejects an empty phone number", () => {
     const result = signUpSchema.safeParse(validSignUp({ phone: "" }));
     expect(result.success).toBe(false);
+  });
+});
+
+function validCompanyApplication(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    companyName: "Acme Inc",
+    contactName: "Ada Lovelace",
+    workEmail: "ada@acme.com",
+    website: "https://acme.com",
+    description: "",
+    ...overrides,
+  };
+}
+
+describe("companyApplicationSchema website validation", () => {
+  it("accepts a normal https URL", () => {
+    const result = companyApplicationSchema.safeParse(validCompanyApplication({ website: "https://example.com" }));
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a javascript: URL", () => {
+    const result = companyApplicationSchema.safeParse(validCompanyApplication({ website: "javascript:alert(1)" }));
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts an empty string", () => {
+    const result = companyApplicationSchema.safeParse(validCompanyApplication({ website: "" }));
+    expect(result.success).toBe(true);
   });
 });

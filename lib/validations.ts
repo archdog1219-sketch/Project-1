@@ -128,3 +128,13 @@ export const verifyPhoneSchema = z.object({
 export const resendPhoneOtpSchema = z.object({
   email: z.string().email(),
 });
+
+export const companyApplicationSchema = z.object({
+  companyName: z.string().trim().min(2, "Company name is required").max(200),
+  contactName: z.string().trim().min(2, "Your name is required").max(100),
+  workEmail: z.string().trim().email("Please enter a valid work email address"),
+  website: z.string().trim().url("Website must be a valid link").max(300).optional().or(z.literal("")),
+  description: z.string().trim().max(1000).optional().or(z.literal("")),
+});
+
+export type CompanyApplicationInput = z.infer<typeof companyApplicationSchema>;

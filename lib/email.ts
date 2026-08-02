@@ -29,3 +29,36 @@ export async function sendVerificationEmail(
     `,
   });
 }
+
+export async function sendCompanyApplicationNotification(
+  adminEmail: string,
+  application: {
+    id: string;
+    companyName: string;
+    contactName: string;
+    workEmail: string;
+    website: string | null;
+    description: string | null;
+  }
+): Promise<void> {
+  const reviewUrl = `${process.env.NEXTAUTH_URL}/admin/companies`;
+
+  await getResend().emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: adminEmail,
+    subject: `New company application: ${application.companyName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto;">
+        <h2>New company application</h2>
+        <p><strong>Company:</strong> ${application.companyName}</p>
+        <p><strong>Contact:</strong> ${application.contactName} &lt;${application.workEmail}&gt;</p>
+        <p><strong>Website:</strong> ${application.website ?? "—"}</p>
+        <p><strong>What they're hiring for:</strong><br/>${application.description ?? "—"}</p>
+        <a href="${reviewUrl}"
+           style="display:inline-block;padding:12px 24px;background:#3b5998;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">
+          Review applications
+        </a>
+      </div>
+    `,
+  });
+}

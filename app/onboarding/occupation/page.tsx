@@ -11,12 +11,6 @@ const OCCUPATIONS = [
     description: "Looking for jobs, internships or programs",
   },
   {
-    value: "EMPLOYER",
-    icon: "🏢",
-    title: "Employer / Company",
-    description: "Posting opportunities, hiring students",
-  },
-  {
     value: "OTHER",
     icon: "👤",
     title: "Other",
@@ -27,24 +21,17 @@ const OCCUPATIONS = [
 export default function OccupationPage() {
   const router = useRouter();
   const [selected, setSelected] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [companyError, setCompanyError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selected) return;
-    if (selected === "EMPLOYER" && !companyName.trim()) {
-      setCompanyError("Company name is required");
-      return;
-    }
-    setCompanyError("");
     setIsLoading(true);
     try {
       const res = await fetch("/api/user/onboarding/occupation", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ occupationType: selected, companyName: companyName.trim() || undefined }),
+        body: JSON.stringify({ occupationType: selected }),
       });
       if (!res.ok) return;
 
@@ -89,20 +76,6 @@ export default function OccupationPage() {
             </div>
           </button>
         ))}
-        {selected === "EMPLOYER" && (
-          <div>
-            <label htmlFor="companyName" style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>Company name</label>
-            <input
-              id="companyName"
-              type="text"
-              placeholder="e.g. Acme Corp"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              style={{ width: "100%", boxSizing: "border-box", border: "1px solid #bdc7d8", padding: "5px 7px", fontSize: "13px", borderRadius: "2px" }}
-            />
-            {companyError && <p style={{ fontSize: "11px", color: "#c00", margin: "4px 0 0" }}>{companyError}</p>}
-          </div>
-        )}
         <button
           type="submit"
           disabled={isLoading || !selected}

@@ -31,20 +31,33 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "That link is invalid or has expired." }, { status: 400 });
   }
 
+  // Claim the token atomically BEFORE doing any writes. updateMany's WHERE
+  // still matches the token, so a second concurrent request whose validity
+  // check already passed will match zero rows and bail out here — that is
+  // what makes the link genuinely single-use.
+  const claimed = await db.companyApplication.updateMany({
+    where: { id: application.id, setPasswordToken: token },
+    data: { setPasswordToken: null, setPasswordTokenExpires: null },
+  });
+  if (claimed.count === 0) {
+    return NextResponse.json({ error: "That link is invalid or has expired." }, { status: 400 });
+  }
+
   const passwordHash = await bcrypt.hash(password, 12);
 
   // Clicking this emailed link proves control of the work address, so the
   // email is marked verified here rather than sending a second confirmation.
-  await db.user.update({
-    where: { email: application.workEmail },
-    data: { passwordHash, emailVerified: new Date() },
-  });
-
-  // Single-use: clear the token so the link cannot be replayed.
-  await db.companyApplication.update({
-    where: { id: application.id },
-    data: { setPasswordToken: null, setPasswordTokenExpires: null },
-  });
+  try {
+    await db.user.update({
+      where: { email: application.workEmail },
+      data: { passwordHash, emailVerified: new Date() },
+    });
+  } catch {
+    // The User row is missing (e.g. manually deleted between approval and
+    // the click). The token is already spent above, so the applicant needs
+    // a fresh approval — do not leak that detail in the response.
+    return NextResponse.json({ error: "That link is invalid or has expired." }, { status: 400 });
+  }
 
   return NextResponse.json({ success: true });
 }

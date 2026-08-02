@@ -62,3 +62,42 @@ export async function sendCompanyApplicationNotification(
     `,
   });
 }
+
+export async function sendCompanyApprovedEmail(
+  to: string,
+  setPasswordUrl: string
+): Promise<void> {
+  await getResend().emails.send({
+    from: process.env.EMAIL_FROM!,
+    to,
+    subject: "You're approved — set your password",
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2>You're approved</h2>
+        <p>Your company has been approved to post opportunities. Set a password to finish setting up your account. This link expires in 24 hours.</p>
+        <a href="${setPasswordUrl}"
+           style="display:inline-block;padding:12px 24px;background:#3b5998;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">
+          Set your password
+        </a>
+      </div>
+    `,
+  });
+}
+
+export async function sendCompanyRejectedEmail(
+  to: string,
+  companyName: string
+): Promise<void> {
+  await getResend().emails.send({
+    from: process.env.EMAIL_FROM!,
+    to,
+    subject: "About your application",
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2>Thanks for your interest</h2>
+        <p>We're not able to approve ${companyName} to post opportunities at this time. We're onboarding companies gradually while we get started, so this may change.</p>
+        <p style="color:#64748b;font-size:14px;">Thanks for taking the time to apply.</p>
+      </div>
+    `,
+  });
+}

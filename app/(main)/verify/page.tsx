@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { getVerification } from "@/lib/identity";
+import { getVerification, isIdentityMockEnabled } from "@/lib/identity";
 import StartButton from "./start-button";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,7 @@ export default async function VerifyPage() {
 
   const verification = await getVerification(session.user.id);
   const isVerified = verification?.status === "VERIFIED";
+  const canVerify = isIdentityMockEnabled();
 
   return (
     <div style={{ fontFamily: "Arial, Helvetica, sans-serif", maxWidth: "560px", margin: "0 auto", padding: "12px 16px" }}>
@@ -74,7 +75,20 @@ export default async function VerifyPage() {
             </div>
           </div>
 
-          <StartButton />
+          {canVerify ? (
+            <StartButton />
+          ) : (
+            <div style={{ ...box, background: "#f7f9fc" }}>
+              <div style={{ fontSize: "12px", fontWeight: "bold", color: "#333", marginBottom: "4px" }}>
+                Not available yet
+              </div>
+              <div style={{ fontSize: "12px", color: "#555" }}>
+                We&apos;re still setting up our ID-check provider. Verification will open
+                up here once it&apos;s ready — nothing is required of you in the meantime,
+                and your account keeps full access.
+              </div>
+            </div>
+          )}
         </>
       )}
 

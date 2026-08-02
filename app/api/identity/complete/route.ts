@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { identityMockSchema } from "@/lib/validations";
-import { namesMatch, getVerification, recordVerificationResult, getIdentityProvider } from "@/lib/identity";
+import { namesMatch, getVerification, recordVerificationResult, isIdentityMockEnabled } from "@/lib/identity";
 import { getWriteRateLimit } from "@/lib/rate-limit";
 
 // Mock-only endpoint: a real vendor reports results via webhook instead.
+// Also refused in production, where a self-serve badge would be worthless.
 export async function POST(request: NextRequest) {
-  if (getIdentityProvider().name !== "mock") {
+  if (!isIdentityMockEnabled()) {
     return NextResponse.json({ error: "Mock completion is disabled." }, { status: 404 });
   }
   const session = await auth();

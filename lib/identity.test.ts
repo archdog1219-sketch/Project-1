@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { namesMatch } from "./identity";
+import { describe, it, expect, afterEach } from "vitest";
+import { namesMatch, isIdentityMockEnabled } from "./identity";
 
 describe("namesMatch", () => {
   it("matches identical names", () => {
@@ -18,5 +18,31 @@ describe("namesMatch", () => {
   it("handles null/empty profile names safely", () => {
     expect(namesMatch(null, "Alex Rivera")).toBe(false);
     expect(namesMatch("Alex Rivera", "")).toBe(false);
+  });
+});
+
+describe("isIdentityMockEnabled", () => {
+  const originalVercelEnv = process.env.VERCEL_ENV;
+
+  afterEach(() => {
+    if (originalVercelEnv === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = originalVercelEnv;
+  });
+
+  // The mock awards a real Verified badge to anyone who clicks "pass", so
+  // production must refuse it — otherwise the badge means nothing.
+  it("is disabled in production", () => {
+    process.env.VERCEL_ENV = "production";
+    expect(isIdentityMockEnabled()).toBe(false);
+  });
+
+  it("is enabled on preview deployments", () => {
+    process.env.VERCEL_ENV = "preview";
+    expect(isIdentityMockEnabled()).toBe(true);
+  });
+
+  it("is enabled locally, where VERCEL_ENV is unset", () => {
+    delete process.env.VERCEL_ENV;
+    expect(isIdentityMockEnabled()).toBe(true);
   });
 });

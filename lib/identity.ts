@@ -48,6 +48,19 @@ export function getIdentityProvider(): IdentityProvider {
   return mockProvider;
 }
 
+/**
+ * Whether the dev mock may actually be used.
+ *
+ * The mock hands out a real ✓ Verified badge to anyone who types their own
+ * profile name and clicks "pass". That is fine locally and on previews, but in
+ * production it would make the badge self-serve and therefore meaningless — so
+ * the mock is refused there. Verification simply reads as unavailable in
+ * production until a real vendor (Stripe Identity / Persona) is wired up.
+ */
+export function isIdentityMockEnabled(): boolean {
+  return getIdentityProvider().name === "mock" && process.env.VERCEL_ENV !== "production";
+}
+
 export async function getVerification(userId: string) {
   return db.identityVerification.findUnique({ where: { userId } });
 }

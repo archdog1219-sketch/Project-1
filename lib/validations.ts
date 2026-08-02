@@ -5,6 +5,10 @@ export const signUpSchema = z
     firstName: z.string().trim().min(1, "First name is required").max(50),
     lastName: z.string().trim().min(1, "Last name is required").max(50),
     email: z.string().email("Please enter a valid email address"),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\+?[0-9\s\-().]{7,20}$/, "Please enter a valid phone number"),
     // Password policy: 10+ chars, upper, lower, digit required.
     // Special characters intentionally not required (user preference).
     password: z
@@ -31,22 +35,6 @@ export const basicInfoSchema = z.object({
     .refine((val) => !isNaN(Date.parse(val)), "Please enter a valid date"),
   city: z.string().min(2, "City must be at least 2 characters").max(100),
 });
-
-export const occupationSchema = z.discriminatedUnion("occupationType", [
-  z.object({
-    occupationType: z.literal("STUDENT_HS"),
-  }),
-  z.object({
-    occupationType: z.literal("STUDENT_COLLEGE"),
-  }),
-  z.object({
-    occupationType: z.literal("EMPLOYER"),
-    companyName: z.string().min(1, "Company name is required").max(200),
-  }),
-  z.object({
-    occupationType: z.literal("OTHER"),
-  }),
-]);
 
 export const studentDetailsSchema = z.object({
   schoolLevel: z.enum(["High School", "College"]),

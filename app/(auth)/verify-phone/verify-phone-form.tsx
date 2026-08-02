@@ -21,6 +21,7 @@ export default function VerifyPhoneForm({ email }: { email: string }) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,13 +48,28 @@ export default function VerifyPhoneForm({ email }: { email: string }) {
   async function handleResend() {
     setError("");
     setNotice("");
-    await fetch("/api/auth/resend-phone-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    setNotice("If that account is awaiting confirmation, a new code is on its way.");
-    router.refresh();
+    setIsResending(true);
+    try {
+      const res = await fetch("/api/auth/resend-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.status === 429) {
+        setError("Please wait a moment before requesting another code.");
+        return;
+      }
+      if (!res.ok) {
+        setError("Couldn't send a new code. Please try again.");
+        return;
+      }
+      setNotice("If that account is awaiting confirmation, a new code is on its way.");
+      router.refresh();
+    } catch {
+      setError("Couldn't send a new code. Please try again.");
+    } finally {
+      setIsResending(false);
+    }
   }
 
   return (
@@ -90,9 +106,10 @@ export default function VerifyPhoneForm({ email }: { email: string }) {
       <button
         type="button"
         onClick={handleResend}
-        style={{ width: "100%", marginTop: "8px", background: "#fff", color: "#3b5998", border: "1px solid #c8d0e0", padding: "6px", fontSize: "12px", borderRadius: "2px", cursor: "pointer" }}
+        disabled={isResending}
+        style={{ width: "100%", marginTop: "8px", background: "#fff", color: "#3b5998", border: "1px solid #c8d0e0", padding: "6px", fontSize: "12px", borderRadius: "2px", cursor: "pointer", opacity: isResending ? 0.6 : 1 }}
       >
-        Send a new code
+        {isResending ? "Sending..." : "Send a new code"}
       </button>
     </form>
   );

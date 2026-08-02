@@ -1,5 +1,3 @@
-import { auth } from "@/lib/auth";
-
 // Admin access is an env-var allow-list, not a DB role: there is exactly one
 // reviewer today and a role system would be unused machinery. Fails closed —
 // an unset or empty ADMIN_EMAILS grants nobody access.
@@ -18,6 +16,10 @@ export function isAdminEmail(
 
 /** True when the current session belongs to an admin. */
 export async function requireAdmin(): Promise<boolean> {
+  // Imported lazily so that importing this module for the pure isAdminEmail
+  // helper does not eagerly pull in next-auth (whose "next/server" import
+  // this Next.js version does not expose to Node's ESM resolver).
+  const { auth } = await import("@/lib/auth");
   const session = await auth();
   return isAdminEmail(session?.user?.email, process.env.ADMIN_EMAILS);
 }

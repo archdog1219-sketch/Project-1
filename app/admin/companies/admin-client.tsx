@@ -29,7 +29,7 @@ export default function AdminClient({ applications }: { applications: AdminAppli
 
   const visible = applications.filter((a) => a.status === filter);
 
-  async function decide(id: string, action: "approve" | "reject") {
+  async function decide(id: string, action: "approve" | "reject" | "resend") {
     setError("");
     setBusyId(id);
     try {
@@ -125,6 +125,18 @@ export default function AdminClient({ applications }: { applications: AdminAppli
                 style={{ background: "#f0f0f0", color: "#666", border: "1px solid #bbb", padding: "5px 12px", fontSize: "12px", borderRadius: "2px", cursor: "pointer" }}
               >
                 {busyId === a.id ? "Working..." : "Reject"}
+              </button>
+            </div>
+          )}
+
+          {a.status === "APPROVED" && (
+            <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+              <button
+                onClick={() => decide(a.id, "resend")}
+                disabled={busyId === a.id}
+                style={{ background: "#fff", color: "#3b5998", border: "1px solid #c8d0e0", padding: "5px 12px", fontSize: "12px", fontWeight: "bold", borderRadius: "2px", cursor: "pointer" }}
+              >
+                {busyId === a.id ? "Working..." : "Resend set-password link"}
               </button>
             </div>
           )}

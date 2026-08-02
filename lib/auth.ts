@@ -30,7 +30,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user || !user.passwordHash) return null;
         if (!user.emailVerified) return null;
-        if (!user.phoneVerified) return null;
+        // Only accounts that supplied a phone must verify it. Pre-existing
+        // users (no phone on file) and approved company accounts (verified at
+        // approval, phone never collected) are unaffected, so this gate needs
+        // no deploy-ordering dance with the backfill script.
+        if (user.phone && !user.phoneVerified) return null;
 
         const valid = await bcrypt.compare(
           parsed.data.password,

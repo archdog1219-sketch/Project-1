@@ -13,6 +13,12 @@ export async function POST(request: NextRequest) {
 
   const { email } = parsed.data;
 
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const ipLimit = await getPhoneOtpRateLimit().limit(`resend-ip:${ip}`);
+  if (!ipLimit.success) {
+    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   const { success } = await getPhoneOtpRateLimit().limit(`resend:${email.toLowerCase()}`);
   if (!success) {
     return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });

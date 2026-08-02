@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { generateOtpCode, isOtpValid, normalizePhone, OTP_TTL_MS } from "./phone-otp";
+import { describe, it, expect, afterEach } from "vitest";
+import { generateOtpCode, isOtpValid, normalizePhone, OTP_TTL_MS, isPhoneOtpMockEnabled } from "./phone-otp";
 
 describe("generateOtpCode", () => {
   it("returns a 6-digit numeric string", () => {
@@ -50,5 +50,31 @@ describe("normalizePhone", () => {
 describe("OTP_TTL_MS", () => {
   it("is ten minutes", () => {
     expect(OTP_TTL_MS).toBe(10 * 60 * 1000);
+  });
+});
+
+describe("isPhoneOtpMockEnabled", () => {
+  const originalVercelEnv = process.env.VERCEL_ENV;
+
+  afterEach(() => {
+    if (originalVercelEnv === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = originalVercelEnv;
+  });
+
+  // The mock displays the OTP to anyone who knows the email address, so
+  // production must refuse it — otherwise the page is an enumeration oracle.
+  it("is disabled in production", () => {
+    process.env.VERCEL_ENV = "production";
+    expect(isPhoneOtpMockEnabled()).toBe(false);
+  });
+
+  it("is enabled on preview deployments", () => {
+    process.env.VERCEL_ENV = "preview";
+    expect(isPhoneOtpMockEnabled()).toBe(true);
+  });
+
+  it("is enabled locally, where VERCEL_ENV is unset", () => {
+    delete process.env.VERCEL_ENV;
+    expect(isPhoneOtpMockEnabled()).toBe(true);
   });
 });

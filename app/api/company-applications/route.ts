@@ -50,6 +50,11 @@ export async function POST(request: NextRequest) {
   // The founder allow-list doubles as the notification list. A missing
   // ADMIN_EMAILS must not lose the application — it is already saved above.
   const adminEmail = (process.env.ADMIN_EMAILS ?? "").split(",")[0]?.trim();
+  if (!adminEmail) {
+    console.error(
+      "ADMIN_EMAILS is not set — company application saved but no notification sent."
+    );
+  }
   if (adminEmail) {
     await sendCompanyApplicationNotification(adminEmail, application);
   }

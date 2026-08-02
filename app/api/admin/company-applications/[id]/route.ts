@@ -8,7 +8,7 @@ import { getWriteRateLimit } from "@/lib/rate-limit";
 import { sendCompanyApprovedEmail, sendCompanyRejectedEmail } from "@/lib/email";
 import { OccupationType } from "@prisma/client";
 
-const schema = z.object({ action: z.enum(["approve", "reject"]) });
+const schema = z.object({ action: z.enum(["approve", "reject", "resend"]) });
 
 const SET_PASSWORD_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -37,6 +37,29 @@ export async function PATCH(
   if (!application) {
     return NextResponse.json({ error: "Application not found." }, { status: 404 });
   }
+
+  if (parsed.data.action === "resend") {
+    if (application.status !== "APPROVED") {
+      return NextResponse.json(
+        { error: "Only approved applications can have their link resent." },
+        { status: 400 }
+      );
+    }
+    const token = nanoid(32);
+    await db.companyApplication.update({
+      where: { id },
+      data: {
+        setPasswordToken: token,
+        setPasswordTokenExpires: new Date(Date.now() + SET_PASSWORD_TTL_MS),
+      },
+    });
+    await sendCompanyApprovedEmail(
+      application.workEmail,
+      `${process.env.NEXTAUTH_URL}/company/set-password?token=${token}`
+    );
+    return NextResponse.json({ success: true });
+  }
+
   if (application.status !== "PENDING") {
     return NextResponse.json({ error: "This application has already been decided." }, { status: 400 });
   }

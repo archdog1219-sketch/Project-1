@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
   const passwordHash = await bcrypt.hash(password, 12);
 
   const otpCode = generateOtpCode();
+  const normalizedPhone = normalizePhone(phone);
 
   await db.user.create({
     data: {
@@ -48,13 +49,13 @@ export async function POST(request: NextRequest) {
       passwordHash,
       name: `${firstName.trim()} ${lastName.trim()}`,
       hasEduEmail: email.toLowerCase().endsWith(".edu"),
-      phone: normalizePhone(phone),
+      phone: normalizedPhone,
       phoneOtpCode: otpCode,
       phoneOtpExpiresAt: new Date(Date.now() + OTP_TTL_MS),
     },
   });
 
-  await getPhoneOtpProvider().sendOtp(normalizePhone(phone), otpCode);
+  await getPhoneOtpProvider().sendOtp(normalizedPhone, otpCode);
 
   const token = nanoid(32);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);

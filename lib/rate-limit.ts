@@ -88,3 +88,13 @@ export function getCompanyApplicationRateLimit() {
     prefix: "ratelimit:companyapp",
   });
 }
+
+// One-shot set-password links from approved companies. Kept out of the
+// registration bucket so shared office IPs can't exhaust each other.
+export function getSetPasswordRateLimit() {
+  return new Ratelimit({
+    redis: getRedis(),
+    limiter: Ratelimit.slidingWindow(10, "1 h"),
+    prefix: "ratelimit:setpassword",
+  });
+}

@@ -52,3 +52,16 @@ export function getPhoneOtpProvider(): PhoneOtpProvider {
   }
   return mockProvider;
 }
+
+/**
+ * Whether the dev mock's code may be shown on screen.
+ *
+ * The mock displays the OTP to anyone who knows the email address, which also
+ * makes the page an account-enumeration oracle. Fine locally and on previews;
+ * refused in production. Mirrors isIdentityMockEnabled() in lib/identity.ts.
+ * Note this gates only the DISCLOSURE — getPhoneOtpProvider() still returns the
+ * mock so registration keeps working; it simply delivers nothing.
+ */
+export function isPhoneOtpMockEnabled(): boolean {
+  return getPhoneOtpProvider().name === "mock" && process.env.VERCEL_ENV !== "production";
+}

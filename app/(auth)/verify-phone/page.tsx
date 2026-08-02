@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
-import { getPhoneOtpProvider } from "@/lib/phone-otp";
+import { isPhoneOtpMockEnabled } from "@/lib/phone-otp";
 import VerifyPhoneForm from "./verify-phone-form";
+import EmailPrompt from "./email-prompt";
 
 export default async function VerifyPhonePage({
   searchParams,
@@ -8,7 +9,7 @@ export default async function VerifyPhonePage({
   searchParams: Promise<{ email?: string }>;
 }) {
   const { email } = await searchParams;
-  const isMock = getPhoneOtpProvider().name === "mock";
+  const isMock = isPhoneOtpMockEnabled();
 
   let mockCode: string | null = null;
   if (isMock && email) {
@@ -44,9 +45,7 @@ export default async function VerifyPhonePage({
       {email ? (
         <VerifyPhoneForm email={email} />
       ) : (
-        <p style={{ fontSize: "12px", color: "#c00" }}>
-          Missing email address. <a href="/sign-up/individual" style={{ color: "#3b5998" }}>Start over</a>.
-        </p>
+        <EmailPrompt />
       )}
     </div>
   );
